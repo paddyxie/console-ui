@@ -14,11 +14,11 @@ exported is a breaking change.
 
 ## Consuming Projects
 
-| Project            | Path                    | Status              |
-|--------------------|-------------------------|---------------------|
-| message-gateway    | `../message-gateway/web`  | ✅ Using console-ui  |
-| ai-agent-workspace | `../ai-agent-workspace/web` | 🔄 Needs migration |
-| awc-bun            | `../awc-bun/web`          | 🔄 Needs migration  |
+| Project            | Path                      | Status                        | Version |
+|--------------------|---------------------------|-------------------------------|---------|
+| message-gateway    | `../message-gateway/web`  | ✅ Fully migrated              | v0.2.0  |
+| ai-agent-workspace | `../ai-agent-workspace/web` | 🔄 Needs migration           | —       |
+| awc-bun            | `../awc-bun/web`          | 🔄 Needs migration            | —       |
 
 When adding features, verify they work in message-gateway (the reference consumer).
 
@@ -62,9 +62,9 @@ dist/                   TypeScript build output (committed for git releases)
 
 **Header**: fixed 48px height, full width. Houses app name, optional extras slot, theme toggle.
 
-**Sidebar**: fixed-width by default (`SIDEBAR_W = 216px`). Target features:
-- Resizable via drag handle (width persisted per `appId`)
-- Collapsible to icon-only mode (state persisted per `appId`)
+**Sidebar**: resizable (drag right edge, 160–360px) and collapsible (icon-only, 52px).
+All state persisted to `{appId}:sidebar-width` and `{appId}:sidebar-collapsed`.
+Width writes are debounced 300ms (resize events are frequent).
 
 **Mobile**: sidebar replaced by `BottomNavigation`. Breakpoint: `sm` (600px).
 
