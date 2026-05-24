@@ -252,7 +252,7 @@ export function createAppTheme(mode: PaletteMode, opts?: ThemeOptions) {
             padding: '10px 12px',
             '&::placeholder': { color: t.textDisabled, opacity: 1, fontSize: '0.8rem' },
           },
-          inputSizeSmall: { padding: '8px 10px' },
+          inputSizeSmall: { padding: '6px 10px' },
         },
       },
       MuiChip: {
