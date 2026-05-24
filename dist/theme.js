@@ -184,15 +184,6 @@ export function createAppTheme(mode, opts) {
                         fontFamily: '"Outfit", sans-serif',
                         '& .MuiOutlinedInput-notchedOutline': { borderColor: t.borderStrong },
                     },
-                    // Force size="small" Select to match InputBase boxes at 32px.
-                    // The Select div applies its own paddingTop/Bottom (8px) which overrides
-                    // the MuiOutlinedInput-inputSizeSmall rule, so we target it directly here.
-                    select: {
-                        '&.MuiInputBase-inputSizeSmall': {
-                            paddingTop: '5.5px',
-                            paddingBottom: '5.5px',
-                        },
-                    },
                 },
             },
             MuiInputLabel: {
@@ -234,6 +225,13 @@ export function createAppTheme(mode, opts) {
                         borderRadius: 6,
                         '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: t.borderHover },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: a.primary },
+                        // Force size="small" Select div to match InputBase boxes at 32px.
+                        // MuiSelect applies its own paddingTop/Bottom with higher specificity than
+                        // inputSizeSmall. A parent→child compound selector wins: (0,2,0) > (0,1,0).
+                        '&.MuiInputBase-sizeSmall .MuiSelect-select': {
+                            paddingTop: '5.5px',
+                            paddingBottom: '5.5px',
+                        },
                     },
                     input: {
                         padding: '10px 12px',
