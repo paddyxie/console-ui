@@ -206,6 +206,15 @@ export function createAppTheme(mode: PaletteMode, opts?: ThemeOptions) {
             fontFamily: '"Outfit", sans-serif',
             '& .MuiOutlinedInput-notchedOutline': { borderColor: t.borderStrong },
           },
+          // Force size="small" Select to match InputBase boxes at 32px.
+          // The Select div applies its own paddingTop/Bottom (8px) which overrides
+          // the MuiOutlinedInput-inputSizeSmall rule, so we target it directly here.
+          select: {
+            '&.MuiInputBase-inputSizeSmall': {
+              paddingTop: '5.5px',
+              paddingBottom: '5.5px',
+            },
+          },
         },
       },
       MuiInputLabel: {
