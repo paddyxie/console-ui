@@ -117,7 +117,34 @@ When migrating `ai-agent-workspace` or `awc-bun`:
 3. **Replace App layout**: remove hand-rolled header/sidebar code, use `AppShell`
 4. **Replace FontLoader**: remove any manual Google Fonts `<link>` tags
 5. **Remove duplicate CSS**: anything that duplicates `BaselineStyles` (scrollbars, box-sizing)
-6. **Verify**: app renders, nav works, theme toggle works, mobile responsive
+6. **Remove `optimizeDeps.include: ['console-ui']`** from `vite.config.ts` if present —
+   console-ui ships compiled JS in `dist/`, no Vite pre-bundling needed
+7. **Add no-flash script** to `index.html` (see below)
+8. **Verify**: app renders, nav works, theme toggle works, mobile responsive
+
+### No-flash script (required in index.html `<head>`)
+
+Prevents the white/unstyled flash before React renders by pre-applying the correct
+background color from localStorage before the JS bundle executes.
+
+```html
+<!-- no-flash: apply theme background before React renders -->
+<script>
+  (function () {
+    try {
+      var m = localStorage.getItem('{appId}:theme') === 'light' ? 'light' : 'dark'
+      var s = document.documentElement.style
+      s.background = m === 'dark' ? '#080a12' : '#f8fafc'
+      s.color = m === 'dark' ? '#f1f5f9' : '#0f172a'
+      s.colorScheme = m
+    } catch (e) {}
+  })()
+</script>
+```
+
+Replace `{appId}` with the project's `appId` (e.g. `message-gateway`).
+The color values (`#080a12`, `#f8fafc`) come from `modeTokens` in `src/theme.ts` — if
+they ever change, update this script too.
 
 ---
 
