@@ -54,6 +54,48 @@ stored value exists.
 
 ---
 
+## MUI Input Patterns
+
+### Use TextField, not Box + InputBase
+
+**Rule:** For any text input that sits alongside a `Select`, always use `TextField`. Never
+use `Box + InputBase` with an explicit `height` override.
+
+Both `TextField` and `Select` are backed by `OutlinedInput` internally. They size themselves
+by the same rules (font size + padding) and will naturally have the same height when both
+use `size="small"`.
+
+`Box + InputBase` has no intrinsic height — the box must be given an explicit `height`
+to look like an outlined input. That hardcoded value will never match the Select's height
+exactly, and the mismatch compounds whenever the theme changes.
+
+```tsx
+// ✅ Correct — natural height, matches Select
+<TextField size="small" placeholder="Search..." value={q} onChange={...} />
+<Select size="small" value={v} onChange={...}>...</Select>
+
+// ❌ Wrong — hardcoded height will drift from Select
+<Box sx={{ height: 32, border: '1px solid ...', ... }}>
+  <InputBase placeholder="Search..." ... />
+</Box>
+<Select size="small" ...>...</Select>
+```
+
+`InputBase` is still appropriate when you need a completely unstyled input (e.g. inside
+a custom container that provides its own border and sizing). Use it intentionally, not
+as a drop-in for `TextField`.
+
+### Label vs Placeholder
+
+- `label` prop on `TextField` → floating label (appears inside, floats to top border on focus).
+  Use for forms where the field needs a persistent, accessible label.
+- `placeholder` only → static hint text, disappears on input.
+  Use for compact toolbars / filter bars where space is tight and context is clear.
+
+Don't mix the two on the same field.
+
+---
+
 ## Adding a Component
 
 Before adding a component to this library, ask:
