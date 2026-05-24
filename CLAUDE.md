@@ -54,45 +54,65 @@ stored value exists.
 
 ---
 
-## MUI Input Patterns
+## UI Design Rules
 
-### Use TextField, not Box + InputBase
+These rules apply to all consuming projects.
 
-**Rule:** For any text input that sits alongside a `Select`, always use `TextField`. Never
-use `Box + InputBase` with an explicit `height` override.
+### 1. All form controls in the same context must be the same height
 
-Both `TextField` and `Select` are backed by `OutlinedInput` internally. They size themselves
-by the same rules (font size + padding) and will naturally have the same height when both
-use `size="small"`.
+Never mix `size="small"` and `size="medium"` within one toolbar, form row, or filter bar.
+Never use explicit `height` overrides to force a match — that value drifts whenever the
+theme changes. Use consistent `size` props and let MUI size components naturally.
 
-`Box + InputBase` has no intrinsic height — the box must be given an explicit `height`
-to look like an outlined input. That hardcoded value will never match the Select's height
-exactly, and the mismatch compounds whenever the theme changes.
+### 2. Use TextField, not Box + InputBase
+
+For any text input that sits alongside a `Select`, use `TextField`. Never use
+`Box + InputBase` with an explicit `height`.
+
+Both `TextField` and `Select` are backed by `OutlinedInput`. With the same `size` prop
+they will have the same height automatically.
 
 ```tsx
-// ✅ Correct — natural height, matches Select
-<TextField size="small" placeholder="Search..." value={q} onChange={...} />
-<Select size="small" value={v} onChange={...}>...</Select>
+// ✅ Correct
+<TextField size="small" label="Search" value={q} onChange={...} />
+<FormControl size="small"><InputLabel>Role</InputLabel><Select .../></FormControl>
 
-// ❌ Wrong — hardcoded height will drift from Select
-<Box sx={{ height: 32, border: '1px solid ...', ... }}>
-  <InputBase placeholder="Search..." ... />
+// ❌ Wrong — hardcoded height will always drift
+<Box sx={{ height: 32, border: '...' }}>
+  <InputBase ... />
 </Box>
 <Select size="small" ...>...</Select>
 ```
 
-`InputBase` is still appropriate when you need a completely unstyled input (e.g. inside
-a custom container that provides its own border and sizing). Use it intentionally, not
-as a drop-in for `TextField`.
+`InputBase` is for completely unstyled inputs inside a custom container that provides
+its own border and sizing. Use it intentionally, not as a drop-in for `TextField`.
 
-### Label vs Placeholder
+### 3. Label policy: all or nothing, default all
 
-- `label` prop on `TextField` → floating label (appears inside, floats to top border on focus).
-  Use for forms where the field needs a persistent, accessible label.
-- `placeholder` only → static hint text, disappears on input.
-  Use for compact toolbars / filter bars where space is tight and context is clear.
+Within a single toolbar or form, every control must follow the same label pattern.
 
-Don't mix the two on the same field.
+**Default: use labels everywhere.**
+- `TextField` → `label` prop (floating label)
+- `Select` → wrap in `FormControl + InputLabel`, pass `label` to Select for the notch
+
+```tsx
+// ✅ All labeled — consistent
+<TextField size="small" label="Conversation ID" ... />
+<FormControl size="small">
+  <InputLabel>Platform</InputLabel>
+  <Select label="Platform" ...>...</Select>
+</FormControl>
+
+// ❌ Mixed — 3 have labels, 2 have placeholder only
+<TextField size="small" label="Conversation ID" ... />
+<Select size="small" displayEmpty renderValue={...}>...</Select>
+```
+
+**When to skip labels (placeholder only):** only if every control in the context is
+equally self-evident without a label (e.g. a single search box). In that case, none
+should have labels.
+
+Do not use `displayEmpty + renderValue` to fake a label on a Select. Use `InputLabel`.
 
 ---
 

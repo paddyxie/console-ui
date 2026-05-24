@@ -247,19 +247,12 @@ export function createAppTheme(mode: PaletteMode, opts?: ThemeOptions) {
             borderRadius: 6,
             '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: t.borderHover },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: a.primary },
-            // Force size="small" Select div to match InputBase boxes at 32px.
-            // MuiSelect applies its own paddingTop/Bottom with higher specificity than
-            // inputSizeSmall. A parent→child compound selector wins: (0,2,0) > (0,1,0).
-            '&.MuiInputBase-sizeSmall .MuiSelect-select': {
-              paddingTop: '5.5px',
-              paddingBottom: '5.5px',
-            },
           },
           input: {
             padding: '10px 12px',
             '&::placeholder': { color: t.textDisabled, opacity: 1, fontSize: '0.8rem' },
           },
-          inputSizeSmall: { padding: '6px 10px' },
+          inputSizeSmall: { padding: '8px 10px' },
         },
       },
       MuiChip: {
