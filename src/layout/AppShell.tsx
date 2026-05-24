@@ -1,13 +1,31 @@
-import React from 'react'
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import {
   Box, Typography, BottomNavigation, BottomNavigationAction,
-  IconButton, Paper, Tooltip, useMediaQuery, useTheme,
+  IconButton, Paper, Tooltip, useMediaQuery, useTheme as useMuiTheme,
+  ThemeProvider, CssBaseline,
 } from '@mui/material'
-import type { PaletteMode } from '@mui/material/styles'
 import { NavLink, useLocation } from 'react-router-dom'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
-import { SIDEBAR_W } from '../theme'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import { createAppTheme, SIDEBAR_W } from '../theme'
+import { FontLoader, BaselineStyles } from '../Baseline'
+
+/* ── constants ────────────────────────────────────────────────────────────── */
+
+const MIN_W = 160
+const MAX_W = 360
+const COLLAPSED_W = 52
+
+/* ── localStorage helpers ─────────────────────────────────────────────────── */
+
+function readPref(appId: string, key: string, fallback: string): string {
+  try { return localStorage.getItem(`${appId}:${key}`) ?? fallback } catch { return fallback }
+}
+function writePref(appId: string, key: string, value: string): void {
+  try { localStorage.setItem(`${appId}:${key}`, value) } catch {}
+}
 
 /* ── public types ─────────────────────────────────────────────────────────── */
 
@@ -19,19 +37,23 @@ export interface NavItem {
 }
 
 export interface AppShellProps {
+  /** Namespaces all localStorage keys — use a stable slug, e.g. "message-gateway". */
+  appId: string
   appName: string
   nav: NavItem[]
-  mode: PaletteMode
-  onToggleTheme: () => void
-  /** Extra content rendered in the header right area (before the theme toggle). */
+  /** Project-specific CSS variables merged into the --ui-* namespace. */
+  extraCssVars?: Record<string, string>
+  /** Extra content in the header right area (before the theme toggle). */
   headerExtras?: React.ReactNode
+  /** Initial theme when no stored preference exists. Defaults to 'dark'. */
+  defaultMode?: 'dark' | 'light'
   children: React.ReactNode
 }
 
-/* ── helpers ──────────────────────────────────────────────────────────────── */
+/* ── ThemeToggle (exported for standalone use) ────────────────────────────── */
 
 export function ThemeToggle({ mode, onToggleTheme }: {
-  mode: PaletteMode
+  mode: 'dark' | 'light'
   onToggleTheme: () => void
 }) {
   return (
@@ -49,21 +71,26 @@ export function ThemeToggle({ mode, onToggleTheme }: {
   )
 }
 
-function NavRow({ item, active }: { item: NavItem; active: boolean }) {
-  return (
+/* ── NavRow ───────────────────────────────────────────────────────────────── */
+
+function NavRow({ item, active, collapsed }: { item: NavItem; active: boolean; collapsed: boolean }) {
+  const row = (
     <Box
       component={NavLink}
       to={item.path}
       sx={{
-        display: 'flex', alignItems: 'center', gap: 1.25,
-        px: 1.5, py: 0.75, borderRadius: '6px',
-        transition: 'all 0.15s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: collapsed ? 0 : 1.25,
+        justifyContent: collapsed ? 'center' : 'flex-start',
+        px: collapsed ? 0 : 1.5,
+        py: 0.75,
+        borderRadius: '6px',
+        transition: 'background 0.15s ease, color 0.15s ease',
         textDecoration: 'none',
         color: active ? 'var(--ui-primary)' : 'var(--ui-text-secondary)',
         background: active ? 'var(--ui-primary-bg)' : 'transparent',
-        borderLeft: active
-          ? '3px solid var(--ui-primary)'
-          : '3px solid transparent',
+        borderLeft: active ? '3px solid var(--ui-primary)' : '3px solid transparent',
         boxShadow: active ? '0 0 8px var(--ui-primary-shadow)' : 'none',
         fontWeight: active ? 600 : 400,
         fontSize: '0.82rem',
@@ -73,32 +100,87 @@ function NavRow({ item, active }: { item: NavItem; active: boolean }) {
         },
       }}
     >
-      <Box sx={{ opacity: active ? 1 : 0.7, display: 'flex' }}>{item.icon}</Box>
-      <Typography sx={{
-        fontFamily: '"Outfit", sans-serif',
-        fontSize: '0.82rem', fontWeight: active ? 600 : 400, lineHeight: 1,
-      }}>
-        {item.label}
-      </Typography>
+      <Box sx={{ opacity: active ? 1 : 0.7, display: 'flex', flexShrink: 0 }}>{item.icon}</Box>
+      {!collapsed && (
+        <Typography sx={{
+          fontFamily: '"Outfit", sans-serif',
+          fontSize: '0.82rem', fontWeight: active ? 600 : 400, lineHeight: 1,
+        }}>
+          {item.label}
+        </Typography>
+      )}
     </Box>
   )
+  return collapsed
+    ? <Tooltip title={item.label} placement="right">{row}</Tooltip>
+    : row
 }
 
 function findActive(nav: NavItem[], pathname: string) {
   return nav.find(n => pathname === n.path || pathname.startsWith(`${n.path}/`))
 }
 
-/* ── AppShell ─────────────────────────────────────────────────────────────── */
+/* ── AppShellContent — rendered inside ThemeProvider ─────────────────────── */
 
-export function AppShell({ appName, nav, mode, onToggleTheme, headerExtras, children }: AppShellProps) {
-  const muiTheme = useTheme()
+function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleTheme, children }: {
+  appId: string
+  appName: string
+  nav: NavItem[]
+  headerExtras?: React.ReactNode
+  mode: 'dark' | 'light'
+  onToggleTheme: () => void
+  children: React.ReactNode
+}) {
+  const muiTheme = useMuiTheme()
   const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'))
   const location = useLocation()
+
+  const [sidebarW, setSidebarW] = useState(() =>
+    parseInt(readPref(appId, 'sidebar-width', String(SIDEBAR_W)))
+  )
+  const [collapsed, setCollapsed] = useState(() =>
+    readPref(appId, 'sidebar-collapsed', 'false') === 'true'
+  )
+
+  // Debounced sidebar width persistence
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  useEffect(() => {
+    clearTimeout(persistTimer.current)
+    persistTimer.current = setTimeout(() => writePref(appId, 'sidebar-width', String(sidebarW)), 300)
+  }, [appId, sidebarW])
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed(c => {
+      writePref(appId, 'sidebar-collapsed', String(!c))
+      return !c
+    })
+  }, [appId])
+
+  // Drag-to-resize
+  const dragRef = useRef<{ startX: number; startW: number } | null>(null)
+  const onDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    dragRef.current = { startX: e.clientX, startW: sidebarW }
+    const onMove = (ev: MouseEvent) => {
+      if (!dragRef.current) return
+      const w = Math.min(MAX_W, Math.max(MIN_W, dragRef.current.startW + ev.clientX - dragRef.current.startX))
+      setSidebarW(w)
+    }
+    const onUp = () => {
+      dragRef.current = null
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }, [sidebarW])
+
   const activeNav = findActive(nav, location.pathname)
   const activePath = activeNav?.path ?? nav[0]?.path ?? '/'
   const pageTitle = activeNav?.label ?? ''
+  const effectiveW = collapsed ? COLLAPSED_W : sidebarW
 
-  /* ── mobile ─────────────────────────────────────────────────────────────── */
+  /* ── mobile ───────────────────────────────────────────────────────────────── */
   if (isMobile) {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100dvh', background: 'var(--ui-bg)' }}>
@@ -109,10 +191,7 @@ export function AppShell({ appName, nav, mode, onToggleTheme, headerExtras, chil
           borderBottom: '1px solid var(--ui-border)',
           flexShrink: 0,
         }}>
-          <Typography sx={{
-            fontFamily: '"Syne", sans-serif',
-            fontSize: '0.9rem', fontWeight: 700, color: 'var(--ui-primary)',
-          }}>
+          <Typography sx={{ fontFamily: '"Syne", sans-serif', fontSize: '0.9rem', fontWeight: 700, color: 'var(--ui-primary)' }}>
             {appName}
           </Typography>
           {headerExtras}
@@ -125,11 +204,7 @@ export function AppShell({ appName, nav, mode, onToggleTheme, headerExtras, chil
           {children}
         </Box>
 
-        <Paper elevation={0} sx={{
-          background: 'var(--ui-surface-muted)',
-          borderTop: '1px solid var(--ui-border)',
-          flexShrink: 0,
-        }}>
+        <Paper elevation={0} sx={{ background: 'var(--ui-surface-muted)', borderTop: '1px solid var(--ui-border)', flexShrink: 0 }}>
           <BottomNavigation
             value={activePath}
             sx={{
@@ -160,7 +235,7 @@ export function AppShell({ appName, nav, mode, onToggleTheme, headerExtras, chil
     )
   }
 
-  /* ── desktop ────────────────────────────────────────────────────────────── */
+  /* ── desktop ──────────────────────────────────────────────────────────────── */
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       {/* Header */}
@@ -172,52 +247,115 @@ export function AppShell({ appName, nav, mode, onToggleTheme, headerExtras, chil
         zIndex: 10,
       }}>
         <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5, mr: 'auto' }}>
-          <Typography sx={{
-            fontFamily: '"Syne", sans-serif', fontWeight: 700,
-            fontSize: '0.95rem', color: 'var(--ui-primary)', whiteSpace: 'nowrap',
-          }}>
+          <Typography sx={{ fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }}>
             {appName}
           </Typography>
           {pageTitle && (
             <>
               <Typography sx={{ color: 'var(--ui-text-disabled)', fontSize: '0.85rem' }}>|</Typography>
-              <Typography sx={{
-                fontFamily: '"Fira Code", monospace', fontSize: '0.78rem',
-                color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap',
-              }}>
+              <Typography sx={{ fontFamily: '"Fira Code", monospace', fontSize: '0.78rem', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }}>
                 {pageTitle}
               </Typography>
             </>
           )}
         </Box>
-
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {headerExtras}
           <ThemeToggle mode={mode} onToggleTheme={onToggleTheme} />
         </Box>
       </Box>
 
-      {/* Body: sidebar + content */}
+      {/* Body */}
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+        {/* Sidebar */}
         <Box sx={{
-          width: SIDEBAR_W, flexShrink: 0,
+          width: effectiveW, flexShrink: 0,
           background: 'var(--ui-surface-muted)',
           borderRight: '1px solid var(--ui-border)',
           display: 'flex', flexDirection: 'column',
-          py: 1.5, px: 1,
+          py: 1.5, px: collapsed ? 0.5 : 1,
           overflow: 'hidden',
+          position: 'relative',
+          transition: 'width 0.15s ease',
         }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+          {/* Nav items */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, flex: 1 }}>
             {nav.map(item => (
-              <NavRow key={item.id} item={item} active={activePath === item.path} />
+              <NavRow key={item.id} item={item} active={activePath === item.path} collapsed={collapsed} />
             ))}
           </Box>
+
+          {/* Collapse toggle */}
+          <Box sx={{ display: 'flex', justifyContent: collapsed ? 'center' : 'flex-end', pt: 1 }}>
+            <Tooltip title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} placement="right">
+              <IconButton
+                size="small"
+                onClick={toggleCollapsed}
+                sx={{ color: 'var(--ui-text-disabled)', '&:hover': { color: 'var(--ui-text-secondary)' } }}
+              >
+                {collapsed
+                  ? <ChevronRightIcon sx={{ fontSize: 16 }} />
+                  : <ChevronLeftIcon sx={{ fontSize: 16 }} />}
+              </IconButton>
+            </Tooltip>
+          </Box>
+
+          {/* Drag handle — only when expanded */}
+          {!collapsed && (
+            <Box
+              onMouseDown={onDragStart}
+              sx={{
+                position: 'absolute', top: 0, right: 0,
+                width: 4, height: '100%',
+                cursor: 'col-resize',
+                '&:hover': { background: 'var(--ui-primary-border)' },
+                zIndex: 1,
+              }}
+            />
+          )}
         </Box>
 
+        {/* Main content */}
         <Box sx={{ flex: 1, overflow: 'auto' }}>
           {children}
         </Box>
       </Box>
     </Box>
+  )
+}
+
+/* ── AppShell (public) ────────────────────────────────────────────────────── */
+
+export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, defaultMode = 'dark', children }: AppShellProps) {
+  const [mode, setMode] = useState<'dark' | 'light'>(() =>
+    readPref(appId, 'theme', defaultMode) as 'dark' | 'light'
+  )
+
+  const theme = useMemo(() => createAppTheme(mode, { extraCssVars }), [mode, extraCssVars])
+
+  const onToggleTheme = useCallback(() => {
+    setMode(m => {
+      const next = m === 'dark' ? 'light' : 'dark'
+      writePref(appId, 'theme', next)
+      return next
+    })
+  }, [appId])
+
+  return (
+    <ThemeProvider theme={theme}>
+      <FontLoader />
+      <BaselineStyles />
+      <CssBaseline />
+      <AppShellContent
+        appId={appId}
+        appName={appName}
+        nav={nav}
+        headerExtras={headerExtras}
+        mode={mode}
+        onToggleTheme={onToggleTheme}
+      >
+        {children}
+      </AppShellContent>
+    </ThemeProvider>
   )
 }
