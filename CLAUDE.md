@@ -95,7 +95,7 @@ git push origin v0.x.y
 
 Consumers pin to a tag in their `package.json`:
 ```json
-"console-ui": "git+https://github.com/<org>/console-ui.git#v0.x.y"
+"console-ui": "git+https://github.com/paddyxie/console-ui.git#v0.x.y"
 ```
 
 **Versioning intent:**

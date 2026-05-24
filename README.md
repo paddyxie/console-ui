@@ -7,10 +7,10 @@ Built on MUI + React. Used by `message-gateway`, `ai-agent-workspace`, `awc-bun`
 
 ```bash
 # Pin to a release tag (recommended)
-bun add console-ui@git+ssh://git@github.com/paddyxie/console-ui.git#v0.1.0
+bun add console-ui@git+https://github.com/paddyxie/console-ui.git#v0.1.0
 
 # Or track latest main (dev only)
-bun add console-ui@git+ssh://git@github.com/paddyxie/console-ui.git
+bun add console-ui@git+https://github.com/paddyxie/console-ui.git
 ```
 
 ## Usage
