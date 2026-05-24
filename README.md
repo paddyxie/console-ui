@@ -1,15 +1,16 @@
 # console-ui
 
-Shared theme, baseline styles, and layout shell for console-style dashboards built with MUI + React.
+Shared theme, baseline styles, and layout shell for console-style dashboards.
+Built on MUI + React. Used by `message-gateway`, `ai-agent-workspace`, `awc-bun`.
 
 ## Install
 
 ```bash
-# via git
-bun add console-ui@git+https://github.com/<org>/console-ui.git#v0.1.0
+# Pin to a release tag (recommended)
+bun add console-ui@git+ssh://git@github.com/paddyxie/console-ui.git#v0.1.0
 
-# or via local path during development
-bun add console-ui@file:../console-ui
+# Or track latest main (dev only)
+bun add console-ui@git+ssh://git@github.com/paddyxie/console-ui.git
 ```
 
 ## Usage
@@ -20,17 +21,12 @@ import { createAppTheme, FontLoader, BaselineStyles, AppShell } from 'console-ui
 import type { NavItem } from 'console-ui'
 
 const NAV: NavItem[] = [
-  { id: 'home',   label: 'Home',   path: '/',         icon: <HomeIcon /> },
-  { id: 'users',  label: 'Users',  path: '/users',    icon: <UsersIcon /> },
+  { id: 'home', label: 'Home', path: '/', icon: <HomeIcon /> },
 ]
 
 function App() {
   const [mode, setMode] = useState<'dark' | 'light'>('dark')
-  const theme = createAppTheme(mode, {
-    extraCssVars: {
-      // project-specific CSS variables
-    },
-  })
+  const theme = createAppTheme(mode)
 
   return (
     <ThemeProvider theme={theme}>
@@ -38,6 +34,7 @@ function App() {
       <BaselineStyles />
       <CssBaseline />
       <AppShell
+        appId="my-app"
         appName="My Dashboard"
         nav={NAV}
         mode={mode}
@@ -50,29 +47,55 @@ function App() {
 }
 ```
 
+## Project-specific theme extension
+
+```ts
+// your-project/src/theme.ts
+import { createAppTheme as base } from 'console-ui'
+import { alpha } from '@mui/material/styles'
+
+export function createAppTheme(mode: 'dark' | 'light') {
+  return base(mode, {
+    extraCssVars: {
+      '--ui-myproject-accent': '#ff6b35',
+    }
+  })
+}
+```
+
+## CSS Variables
+
+All theme values are on `:root` as `--ui-*`. Use these in `sx` props:
+
+```tsx
+<Box sx={{ color: 'var(--ui-primary)', background: 'var(--ui-surface-muted)' }} />
+```
+
 ## Exports
 
 | Export | Description |
 |---|---|
-| `createAppTheme(mode, opts?)` | Returns a MUI theme with CSS variables (`--ui-*`) |
-| `FontLoader` | Component that injects Google Fonts (Syne, Outfit, Fira Code) |
+| `createAppTheme(mode, opts?)` | MUI theme with `--ui-*` CSS variables |
+| `FontLoader` | Injects Google Fonts (Syne, Outfit, Fira Code) |
 | `BaselineStyles` | Global reset + scrollbar styles |
-| `AppShell` | Header + sidebar + content layout (with mobile support) |
-| `ThemeToggle` | Dark/light mode toggle button |
+| `AppShell` | Header + sidebar + content layout |
+| `ThemeToggle` | Dark/light toggle button |
 | `modeTokens` | Raw color tokens by mode |
-| `accentTokens` | Accent color constants |
-| `SIDEBAR_W` | Sidebar width constant (216px) |
+| `accentTokens` | Brand/status color constants |
+| `SIDEBAR_W` | Default sidebar width (216px) |
 
-## CSS Variables
-
-All theme values are exposed as `--ui-*` CSS variables on `:root`, so any component can reference them:
-
-```tsx
-<Box sx={{ color: 'var(--ui-primary)', background: 'var(--ui-surface-muted)' }}>
-```
-
-## Build
+## Releasing
 
 ```bash
-bun run build   # outputs to dist/
+# 1. Commit everything
+git add -A && git commit -m "feat: ..."
+
+# 2. Tag and push
+git tag v0.X.Y
+git push origin main --tags
+
+# 3. Update consumers — change the tag in their package.json, then:
+bun install
 ```
+
+See `AGENTS.md` for full release checklist and architecture guide.
