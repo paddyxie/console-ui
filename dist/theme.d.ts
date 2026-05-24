@@ -1,0 +1,71 @@
+import type { PaletteMode } from '@mui/material/styles';
+export declare const SIDEBAR_W = 216;
+export declare const modeTokens: {
+    readonly dark: {
+        readonly bg: "#080a12";
+        readonly surface: "#111827";
+        readonly surfaceMuted: "#0d0f1a";
+        readonly text: "#f1f5f9";
+        readonly textSoft: "#e2e8f0";
+        readonly textMuted: "#cbd5e1";
+        readonly textSecondary: "#a8b3c7";
+        readonly textTertiary: "#94a3b8";
+        readonly textDisabled: "#64748b";
+        readonly emptyIcon: "#475569";
+        readonly border: "rgba(255,255,255,0.07)";
+        readonly borderSubtle: "rgba(255,255,255,0.05)";
+        readonly borderStrong: "rgba(255,255,255,0.1)";
+        readonly borderHover: "rgba(255,255,255,0.2)";
+        readonly hover: "rgba(255,255,255,0.04)";
+        readonly hoverSubtle: "rgba(255,255,255,0.02)";
+        readonly field: "rgba(255,255,255,0.05)";
+        readonly overlay: "rgba(2,6,23,0.72)";
+        readonly tooltip: "#1e2333";
+        readonly neutralChipBg: "rgba(100,116,139,0.1)";
+        readonly neutralChipBorder: "rgba(100,116,139,0.2)";
+        readonly selectedText: "#e0e7ff";
+        readonly selectedTextSoft: "#a5b4fc";
+    };
+    readonly light: {
+        readonly bg: "#f8fafc";
+        readonly surface: "#ffffff";
+        readonly surfaceMuted: "#f1f5f9";
+        readonly text: "#0f172a";
+        readonly textSoft: "#1e293b";
+        readonly textMuted: "#334155";
+        readonly textSecondary: "#475569";
+        readonly textTertiary: "#64748b";
+        readonly textDisabled: "#94a3b8";
+        readonly emptyIcon: "#94a3b8";
+        readonly border: "rgba(15,23,42,0.1)";
+        readonly borderSubtle: "rgba(15,23,42,0.07)";
+        readonly borderStrong: "rgba(15,23,42,0.14)";
+        readonly borderHover: "rgba(15,23,42,0.24)";
+        readonly hover: "rgba(15,23,42,0.05)";
+        readonly hoverSubtle: "rgba(15,23,42,0.035)";
+        readonly field: "rgba(15,23,42,0.04)";
+        readonly overlay: "rgba(255,255,255,0.82)";
+        readonly tooltip: "#111827";
+        readonly neutralChipBg: "rgba(100,116,139,0.1)";
+        readonly neutralChipBorder: "rgba(100,116,139,0.22)";
+        readonly selectedText: "#3730a3";
+        readonly selectedTextSoft: "#4f46e5";
+    };
+};
+export type ModeTokens = (typeof modeTokens)[keyof typeof modeTokens];
+export declare const accentTokens: {
+    readonly primary: "#818cf8";
+    readonly primaryLight: "#a5b4fc";
+    readonly primaryDark: "#6366f1";
+    readonly primaryAlt: "#60a5fa";
+    readonly success: "#10b981";
+    readonly warning: "#f59e0b";
+    readonly warningAlt: "#eab308";
+    readonly error: "#ef4444";
+    readonly errorDark: "#dc2626";
+    readonly white: "#fff";
+};
+export interface ThemeOptions {
+    extraCssVars?: Record<string, string>;
+}
+export declare function createAppTheme(mode: PaletteMode, opts?: ThemeOptions): import("@mui/material").Theme;
