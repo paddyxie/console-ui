@@ -114,6 +114,39 @@ should have labels.
 
 Do not use `displayEmpty + renderValue` to fake a label on a Select. Use `InputLabel`.
 
+### 4. Dialog header/footer style
+
+`DialogTitle` gets a bottom border but no background color change. `DialogActions` gets
+no border and no background color change. Both areas share the same background as the
+dialog body (`--ui-surface`). This avoids the "banded" look where header and footer
+appear as visually distinct panels.
+
+`DialogTitle` padding is tightened to `py: 1.25` (vs MUI default 16px) for a more
+compact header.
+
+The theme (`MuiDialog` + `MuiDialogTitle` overrides) handles background, border, font,
+font size, padding, and the header divider automatically. No `PaperProps` or font props
+needed at the call site.
+
+```tsx
+// ✅ Correct — theme does the work
+<Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+  <DialogTitle>Title</DialogTitle>
+  <DialogContent>...</DialogContent>
+  <DialogActions sx={{ px: 3, pb: 2 }}>...</DialogActions>
+</Dialog>
+
+// With icon in title — only layout sx remains
+<DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+  <SomeIcon /> Title
+</DialogTitle>
+
+// ❌ Wrong — hardcoding what the theme already provides
+<Dialog PaperProps={{ sx: { background: 'var(--ui-surface)', border: '...' } }}>
+<DialogTitle sx={{ fontFamily: '"Syne"...', fontSize: '0.9rem', color: '...', borderBottom: '...' }}>
+<DialogActions sx={{ background: 'var(--ui-surface-muted)', borderTop: '...' }}>
+```
+
 ---
 
 ## Adding a Component

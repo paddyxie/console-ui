@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useCallback, useRef, useMemo } from 'react'
 import {
   Box, Typography, BottomNavigation, BottomNavigationAction,
   IconButton, Paper, Tooltip, useMediaQuery, useTheme as useMuiTheme,
@@ -45,8 +45,12 @@ export interface AppShellProps {
   extraCssVars?: Record<string, string>
   /** Extra content in the header right area (before the theme toggle). */
   headerExtras?: React.ReactNode
+  /** Content shown in the header, immediately to the right of the app title. */
+  headerLeft?: React.ReactNode
   /** Initial theme when no stored preference exists. Defaults to 'dark'. */
   defaultMode?: 'dark' | 'light'
+  /** Set to false to hide the sidebar and mobile bottom nav. Defaults to true. */
+  sidebar?: boolean
   children: React.ReactNode
 }
 
@@ -122,11 +126,13 @@ function findActive(nav: NavItem[], pathname: string) {
 
 /* ── AppShellContent — rendered inside ThemeProvider ─────────────────────── */
 
-function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleTheme, children }: {
+function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sidebar = true, mode, onToggleTheme, children }: {
   appId: string
   appName: string
   nav: NavItem[]
   headerExtras?: React.ReactNode
+  headerLeft?: React.ReactNode
+  sidebar?: boolean
   mode: 'dark' | 'light'
   onToggleTheme: () => void
   children: React.ReactNode
@@ -142,13 +148,6 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
     readPref(appId, 'sidebar-collapsed', 'false') === 'true'
   )
 
-  // Debounced sidebar width persistence
-  const persistTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  useEffect(() => {
-    clearTimeout(persistTimer.current)
-    persistTimer.current = setTimeout(() => writePref(appId, 'sidebar-width', String(sidebarW)), 300)
-  }, [appId, sidebarW])
-
   const toggleCollapsed = useCallback(() => {
     setCollapsed(c => {
       writePref(appId, 'sidebar-collapsed', String(!c))
@@ -157,23 +156,30 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
   }, [appId])
 
   // Drag-to-resize
-  const dragRef = useRef<{ startX: number; startW: number } | null>(null)
+  const dragRef = useRef<{ startX: number; startW: number; lastW: number } | null>(null)
   const onDragStart = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
-    dragRef.current = { startX: e.clientX, startW: sidebarW }
+    dragRef.current = { startX: e.clientX, startW: sidebarW, lastW: sidebarW }
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
     const onMove = (ev: MouseEvent) => {
       if (!dragRef.current) return
       const w = Math.min(MAX_W, Math.max(MIN_W, dragRef.current.startW + ev.clientX - dragRef.current.startX))
+      dragRef.current.lastW = w
       setSidebarW(w)
     }
     const onUp = () => {
+      const finalW = dragRef.current?.lastW ?? sidebarW
       dragRef.current = null
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
+      writePref(appId, 'sidebar-width', String(finalW))
     }
     document.addEventListener('mousemove', onMove)
     document.addEventListener('mouseup', onUp)
-  }, [sidebarW])
+  }, [appId, sidebarW])
 
   const activeNav = findActive(nav, location.pathname)
   const activePath = activeNav?.path ?? nav[0]?.path ?? '/'
@@ -194,6 +200,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
           <Typography sx={{ fontFamily: '"Syne", sans-serif', fontSize: '0.9rem', fontWeight: 700, color: 'var(--ui-primary)' }}>
             {appName}
           </Typography>
+          {headerLeft}
           {headerExtras}
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }}>
             <ThemeToggle mode={mode} onToggleTheme={onToggleTheme} />
@@ -204,7 +211,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
           {children}
         </Box>
 
-        <Paper elevation={0} sx={{ background: 'var(--ui-surface-muted)', borderTop: '1px solid var(--ui-border)', flexShrink: 0 }}>
+        {sidebar && <Paper elevation={0} sx={{ background: 'var(--ui-surface-muted)', borderTop: '1px solid var(--ui-border)', flexShrink: 0 }}>
           <BottomNavigation
             value={activePath}
             sx={{
@@ -230,7 +237,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
               />
             ))}
           </BottomNavigation>
-        </Paper>
+        </Paper>}
       </Box>
     )
   }
@@ -246,18 +253,21 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
         borderBottom: '1px solid var(--ui-border)',
         zIndex: 10,
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5, mr: 'auto' }}>
-          <Typography sx={{ fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }}>
-            {appName}
-          </Typography>
-          {pageTitle && (
-            <>
-              <Typography sx={{ color: 'var(--ui-text-disabled)', fontSize: '0.85rem' }}>|</Typography>
-              <Typography sx={{ fontFamily: '"Fira Code", monospace', fontSize: '0.78rem', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }}>
-                {pageTitle}
-              </Typography>
-            </>
-          )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mr: 'auto', minWidth: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5 }}>
+            <Typography sx={{ fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }}>
+              {appName}
+            </Typography>
+            {pageTitle && (
+              <>
+                <Typography sx={{ color: 'var(--ui-text-disabled)', fontSize: '0.85rem' }}>|</Typography>
+                <Typography sx={{ fontFamily: '"Fira Code", monospace', fontSize: '0.78rem', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }}>
+                  {pageTitle}
+                </Typography>
+              </>
+            )}
+          </Box>
+          {headerLeft}
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {headerExtras}
@@ -268,7 +278,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
       {/* Body */}
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Sidebar */}
-        <Box sx={{
+        {sidebar && <Box sx={{
           width: effectiveW, flexShrink: 0,
           background: 'var(--ui-surface-muted)',
           borderRight: '1px solid var(--ui-border)',
@@ -276,7 +286,6 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
           py: 1.5, px: collapsed ? 0.5 : 1,
           overflow: 'hidden',
           position: 'relative',
-          transition: 'width 0.15s ease',
         }}>
           {/* Nav items */}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, flex: 1 }}>
@@ -313,7 +322,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
               }}
             />
           )}
-        </Box>
+        </Box>}
 
         {/* Main content */}
         <Box sx={{ flex: 1, overflow: 'auto' }}>
@@ -326,7 +335,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, mode, onToggleThem
 
 /* ── AppShell (public) ────────────────────────────────────────────────────── */
 
-export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, defaultMode = 'dark', children }: AppShellProps) {
+export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, headerLeft, defaultMode = 'dark', sidebar, children }: AppShellProps) {
   const [mode, setMode] = useState<'dark' | 'light'>(() =>
     readPref(appId, 'theme', defaultMode) as 'dark' | 'light'
   )
@@ -351,6 +360,8 @@ export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, defa
         appName={appName}
         nav={nav}
         headerExtras={headerExtras}
+        headerLeft={headerLeft}
+        sidebar={sidebar}
         mode={mode}
         onToggleTheme={onToggleTheme}
       >

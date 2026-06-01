@@ -247,12 +247,13 @@ export function createAppTheme(mode: PaletteMode, opts?: ThemeOptions) {
             borderRadius: 6,
             '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: t.borderHover },
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: a.primary },
+            '&.MuiOutlinedInput-sizeSmall': { minHeight: 30 },
           },
           input: {
             padding: '10px 12px',
             '&::placeholder': { color: t.textDisabled, opacity: 1, fontSize: '0.8rem' },
           },
-          inputSizeSmall: { padding: '8px 10px' },
+          inputSizeSmall: { padding: '6px 10px' },
         },
       },
       MuiChip: {
@@ -261,8 +262,14 @@ export function createAppTheme(mode: PaletteMode, opts?: ThemeOptions) {
         },
       },
       MuiButton: {
+        defaultProps: { size: 'small', variant: 'outlined' },
         styleOverrides: {
-          root: { fontFamily: '"Outfit", sans-serif', fontWeight: 500, textTransform: 'none', letterSpacing: 0 },
+          root: {
+            fontFamily: '"Outfit", sans-serif',
+            fontWeight: 500,
+            textTransform: 'none',
+            letterSpacing: 0,
+          },
           contained: {
             background: a.primary,
             color: a.white,
@@ -270,7 +277,26 @@ export function createAppTheme(mode: PaletteMode, opts?: ThemeOptions) {
             '&:hover': { background: a.primaryDark, boxShadow: `0 0 28px ${alpha(a.primary, 0.45)}` },
             '&.Mui-disabled': { background: t.hover, color: t.textDisabled, boxShadow: 'none' },
           },
+          outlined: {
+            borderColor: t.borderStrong,
+            color: t.textSecondary,
+            '&:hover': {
+              borderColor: t.borderHover,
+              background: t.hover,
+            },
+            '&.Mui-disabled': { borderColor: t.border, color: t.textDisabled },
+          },
         },
+        variants: [
+          {
+            props: { variant: 'contained', color: 'error' },
+            style: {
+              background: a.error,
+              boxShadow: `0 0 20px ${alpha(a.error, 0.3)}`,
+              '&:hover': { background: a.errorDark, boxShadow: `0 0 28px ${alpha(a.error, 0.45)}` },
+            },
+          },
+        ],
       },
       MuiTooltip: {
         styleOverrides: {
@@ -292,6 +318,27 @@ export function createAppTheme(mode: PaletteMode, opts?: ThemeOptions) {
             letterSpacing: '0.06em',
             color: t.textMuted,
             background: t.surfaceMuted,
+          },
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            backgroundImage: 'none',
+            background: t.surface,
+            border: `1px solid ${t.borderStrong}`,
+          },
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            fontFamily: '"Syne", sans-serif',
+            fontSize: '0.9rem',
+            color: t.text,
+            paddingTop: 10,
+            paddingBottom: 10,
+            borderBottom: `1px solid ${t.border}`,
           },
         },
       },
