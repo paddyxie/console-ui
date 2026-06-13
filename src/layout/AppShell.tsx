@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react'
+import React, { useState, useCallback, useRef, useMemo, createContext, useContext } from 'react'
 import {
   Box, Typography, BottomNavigation, BottomNavigationAction,
   IconButton, Paper, Tooltip, useMediaQuery, useTheme as useMuiTheme,
@@ -18,13 +18,43 @@ const MIN_W = 160
 const MAX_W = 360
 const COLLAPSED_W = 52
 
-/* ── localStorage helpers ─────────────────────────────────────────────────── */
+/* ── Preference context + helpers ─────────────────────────────────────────── */
+
+const AppIdContext = createContext<string>('')
 
 function readPref(appId: string, key: string, fallback: string): string {
   try { return localStorage.getItem(`${appId}:${key}`) ?? fallback } catch { return fallback }
 }
 function writePref(appId: string, key: string, value: string): void {
   try { localStorage.setItem(`${appId}:${key}`, value) } catch {}
+}
+
+/**
+ * Read and write a namespaced user preference from localStorage.
+ * Must be used inside an AppShell (which provides the appId context).
+ *
+ * @example
+ * const [width, setWidth] = usePreference('files:tree-width', 300)
+ */
+export function usePreference<T extends string | number | boolean>(
+  key: string,
+  defaultValue: T,
+): [T, (v: T) => void] {
+  const appId = useContext(AppIdContext)
+  const [value, setValue] = useState<T>(() => {
+    const raw = readPref(appId, key, '')
+    if (raw === '') return defaultValue
+    if (typeof defaultValue === 'number') return Number(raw) as T
+    if (typeof defaultValue === 'boolean') return (raw === 'true') as T
+    return raw as T
+  })
+
+  const set = useCallback((v: T) => {
+    setValue(v)
+    writePref(appId, key, String(v))
+  }, [appId, key])
+
+  return [value, set]
 }
 
 /* ── public types ─────────────────────────────────────────────────────────── */
@@ -351,6 +381,7 @@ export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, head
   }, [appId])
 
   return (
+    <AppIdContext.Provider value={appId}>
     <ThemeProvider theme={theme}>
       <FontLoader />
       <BaselineStyles />
@@ -368,5 +399,6 @@ export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, head
         {children}
       </AppShellContent>
     </ThemeProvider>
+    </AppIdContext.Provider>
   )
 }
