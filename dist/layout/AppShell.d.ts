@@ -1,4 +1,12 @@
 import React from 'react';
+/**
+ * Read and write a namespaced user preference from localStorage.
+ * Must be used inside an AppShell (which provides the appId context).
+ *
+ * @example
+ * const [width, setWidth] = usePreference('files:tree-width', 300)
+ */
+export declare function usePreference<T extends string | number | boolean>(key: string, defaultValue: T): [T, (v: T) => void];
 export interface NavItem {
     id: string;
     label: string;
@@ -18,6 +26,10 @@ export interface AppShellProps {
     headerLeft?: React.ReactNode;
     /** Initial theme when no stored preference exists. Defaults to 'dark'. */
     defaultMode?: 'dark' | 'light';
+    /** Multiplies the shared typography scale. Defaults to 1. */
+    fontScale?: number;
+    /** Base rem used by the shared typography scale. Defaults to 0.8125rem. */
+    fontBaseRem?: number;
     /** Set to false to hide the sidebar and mobile bottom nav. Defaults to true. */
     sidebar?: boolean;
     children: React.ReactNode;
@@ -26,4 +38,4 @@ export declare function ThemeToggle({ mode, onToggleTheme }: {
     mode: 'dark' | 'light';
     onToggleTheme: () => void;
 }): import("react/jsx-runtime").JSX.Element;
-export declare function AppShell({ appId, appName, nav, extraCssVars, headerExtras, headerLeft, defaultMode, sidebar, children }: AppShellProps): import("react/jsx-runtime").JSX.Element;
+export declare function AppShell({ appId, appName, nav, extraCssVars, headerExtras, headerLeft, defaultMode, fontScale, fontBaseRem, sidebar, children, }: AppShellProps): import("react/jsx-runtime").JSX.Element;

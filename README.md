@@ -71,15 +71,37 @@ All theme values are on `:root` as `--ui-*`. Use these in `sx` props:
 <Box sx={{ color: 'var(--ui-primary)', background: 'var(--ui-surface-muted)' }} />
 ```
 
+### Typography Scale
+
+`console-ui` owns the shared console typography scale. The default base body size is
+`0.8125rem` (13px at a 16px root), and related roles are derived from that base:
+
+| Role | Variable |
+|---|---|
+| App title | `--ui-font-size-app-title` |
+| Page title | `--ui-font-size-page-title` |
+| Section/Dialog title | `--ui-font-size-section-title`, `--ui-font-size-dialog-title` |
+| Body text | `--ui-font-size-body` |
+| Secondary body | `--ui-font-size-body-small` |
+| Table cell/head | `--ui-font-size-table-cell`, `--ui-font-size-table-head` |
+| Metadata/chip/code | `--ui-font-size-meta`, `--ui-font-size-chip`, `--ui-font-size-code` |
+
+Prefer MUI variants (`body1`, `body2`, `caption`, `subtitle2`, `h6`) and shared
+components over page-local `fontSize` values. For app-wide resizing, pass
+`fontScale` or `fontBaseRem` to `AppShell`, or to `createAppTheme()` when building
+a custom theme.
+
 ## Exports
 
 | Export | Description |
 |---|---|
 | `createAppTheme(mode, opts?)` | MUI theme with `--ui-*` CSS variables |
+| `createTypographyScale(fontScale?, fontBaseRem?)` | Shared relative typography scale |
 | `FontLoader` | Injects Google Fonts (Syne, Outfit, Fira Code) |
 | `BaselineStyles` | Global reset + scrollbar styles |
 | `AppShell` | Header + sidebar + content layout |
 | `ThemeToggle` | Dark/light toggle button |
+| `PaginationBar` | Shared numbered pagination with optional page-size select |
 | `modeTokens` | Raw color tokens by mode |
 | `accentTokens` | Brand/status color constants |
 | `SIDEBAR_W` | Default sidebar width (216px) |

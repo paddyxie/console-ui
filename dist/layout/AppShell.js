@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, createContext, useContext } from 'react';
 import { Box, Typography, BottomNavigation, BottomNavigationAction, IconButton, Paper, Tooltip, useMediaQuery, useTheme as useMuiTheme, ThemeProvider, CssBaseline, } from '@mui/material';
 import { NavLink, useLocation } from 'react-router-dom';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -12,7 +12,8 @@ import { FontLoader, BaselineStyles } from '../Baseline';
 const MIN_W = 160;
 const MAX_W = 360;
 const COLLAPSED_W = 52;
-/* ── localStorage helpers ─────────────────────────────────────────────────── */
+/* ── Preference context + helpers ─────────────────────────────────────────── */
+const AppIdContext = createContext('');
 function readPref(appId, key, fallback) {
     try {
         return localStorage.getItem(`${appId}:${key}`) ?? fallback;
@@ -26,6 +27,31 @@ function writePref(appId, key, value) {
         localStorage.setItem(`${appId}:${key}`, value);
     }
     catch { }
+}
+/**
+ * Read and write a namespaced user preference from localStorage.
+ * Must be used inside an AppShell (which provides the appId context).
+ *
+ * @example
+ * const [width, setWidth] = usePreference('files:tree-width', 300)
+ */
+export function usePreference(key, defaultValue) {
+    const appId = useContext(AppIdContext);
+    const [value, setValue] = useState(() => {
+        const raw = readPref(appId, key, '');
+        if (raw === '')
+            return defaultValue;
+        if (typeof defaultValue === 'number')
+            return Number(raw);
+        if (typeof defaultValue === 'boolean')
+            return (raw === 'true');
+        return raw;
+    });
+    const set = useCallback((v) => {
+        setValue(v);
+        writePref(appId, key, String(v));
+    }, [appId, key]);
+    return [value, set];
 }
 /* ── ThemeToggle (exported for standalone use) ────────────────────────────── */
 export function ThemeToggle({ mode, onToggleTheme }) {
@@ -50,14 +76,14 @@ function NavRow({ item, active, collapsed }) {
             borderLeft: active ? '3px solid var(--ui-primary)' : '3px solid transparent',
             boxShadow: active ? '0 0 8px var(--ui-primary-shadow)' : 'none',
             fontWeight: active ? 600 : 400,
-            fontSize: '0.82rem',
+            fontSize: 'var(--ui-font-size-nav)',
             '&:hover': {
                 color: active ? 'var(--ui-primary)' : 'var(--ui-text)',
                 background: active ? 'var(--ui-primary-bg)' : 'var(--ui-hover)',
             },
         }, children: [_jsx(Box, { sx: { opacity: active ? 1 : 0.7, display: 'flex', flexShrink: 0 }, children: item.icon }), !collapsed && (_jsx(Typography, { sx: {
                     fontFamily: '"Outfit", sans-serif',
-                    fontSize: '0.82rem', fontWeight: active ? 600 : 400, lineHeight: 1,
+                    fontSize: 'var(--ui-font-size-nav)', fontWeight: active ? 600 : 400, lineHeight: 1,
                 }, children: item.label }))] }));
     return collapsed
         ? _jsx(Tooltip, { title: item.label, placement: "right", children: row })
@@ -117,15 +143,15 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
                         background: 'var(--ui-surface-muted)',
                         borderBottom: '1px solid var(--ui-border)',
                         flexShrink: 0,
-                    }, children: [_jsx(Typography, { sx: { fontFamily: '"Syne", sans-serif', fontSize: '0.9rem', fontWeight: 700, color: 'var(--ui-primary)' }, children: appName }), headerLeft, headerExtras, _jsx(Box, { sx: { ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }, children: _jsx(ThemeToggle, { mode: mode, onToggleTheme: onToggleTheme }) })] }), _jsx(Box, { sx: { flex: 1, overflow: 'auto', minHeight: 0 }, children: children }), sidebar && _jsx(Paper, { elevation: 0, sx: { background: 'var(--ui-surface-muted)', borderTop: '1px solid var(--ui-border)', flexShrink: 0 }, children: _jsx(BottomNavigation, { value: activePath, sx: {
+                    }, children: [_jsx(Typography, { sx: { fontFamily: '"Syne", sans-serif', fontSize: 'var(--ui-font-size-app-title)', fontWeight: 700, color: 'var(--ui-primary)' }, children: appName }), headerLeft, headerExtras, _jsx(Box, { sx: { ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }, children: _jsx(ThemeToggle, { mode: mode, onToggleTheme: onToggleTheme }) })] }), _jsx(Box, { sx: { flex: 1, overflow: 'auto', minHeight: 0 }, children: children }), sidebar && _jsx(Paper, { elevation: 0, sx: { background: 'var(--ui-surface-muted)', borderTop: '1px solid var(--ui-border)', flexShrink: 0 }, children: _jsx(BottomNavigation, { value: activePath, sx: {
                             background: 'transparent', height: 56,
                             '& .MuiBottomNavigationAction-root': {
                                 color: 'var(--ui-text-secondary)', minWidth: 0, padding: '6px 0',
                                 '&.Mui-selected': { color: 'var(--ui-primary)' },
                             },
                             '& .MuiBottomNavigationAction-label': {
-                                fontFamily: '"Outfit", sans-serif', fontSize: '0.6rem',
-                                '&.Mui-selected': { fontSize: '0.6rem' },
+                                fontFamily: '"Outfit", sans-serif', fontSize: 'var(--ui-font-size-micro)',
+                                '&.Mui-selected': { fontSize: 'var(--ui-font-size-micro)' },
                             },
                         }, children: nav.map(item => (_jsx(BottomNavigationAction, { component: NavLink, to: item.path, value: item.path, label: item.label.split(' ')[0], icon: item.icon }, item.id))) }) })] }));
     }
@@ -136,7 +162,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
                     background: 'var(--ui-surface-muted)',
                     borderBottom: '1px solid var(--ui-border)',
                     zIndex: 10,
-                }, children: [_jsxs(Box, { sx: { display: 'flex', alignItems: 'center', gap: 2, mr: 'auto', minWidth: 0 }, children: [_jsxs(Box, { sx: { display: 'flex', alignItems: 'baseline', gap: 1.5 }, children: [_jsx(Typography, { sx: { fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }, children: appName }), pageTitle && (_jsxs(_Fragment, { children: [_jsx(Typography, { sx: { color: 'var(--ui-text-disabled)', fontSize: '0.85rem' }, children: "|" }), _jsx(Typography, { sx: { fontFamily: '"Fira Code", monospace', fontSize: '0.78rem', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }, children: pageTitle })] }))] }), headerLeft] }), _jsxs(Box, { sx: { display: 'flex', alignItems: 'center', gap: 1 }, children: [headerExtras, _jsx(ThemeToggle, { mode: mode, onToggleTheme: onToggleTheme })] })] }), _jsxs(Box, { sx: { flex: 1, display: 'flex', overflow: 'hidden' }, children: [sidebar && _jsxs(Box, { sx: {
+                }, children: [_jsxs(Box, { sx: { display: 'flex', alignItems: 'center', gap: 2, mr: 'auto', minWidth: 0 }, children: [_jsxs(Box, { sx: { display: 'flex', alignItems: 'baseline', gap: 1.5 }, children: [_jsx(Typography, { sx: { fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: 'var(--ui-font-size-app-title)', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }, children: appName }), pageTitle && (_jsxs(_Fragment, { children: [_jsx(Typography, { sx: { color: 'var(--ui-text-disabled)', fontSize: 'var(--ui-font-size-body-small)' }, children: "|" }), _jsx(Typography, { sx: { fontFamily: '"Fira Code", monospace', fontSize: 'var(--ui-font-size-top-nav)', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }, children: pageTitle })] }))] }), headerLeft] }), _jsxs(Box, { sx: { display: 'flex', alignItems: 'center', gap: 1 }, children: [headerExtras, _jsx(ThemeToggle, { mode: mode, onToggleTheme: onToggleTheme })] })] }), _jsxs(Box, { sx: { flex: 1, display: 'flex', overflow: 'hidden' }, children: [sidebar && _jsxs(Box, { sx: {
                             width: effectiveW, flexShrink: 0,
                             background: 'var(--ui-surface-muted)',
                             borderRight: '1px solid var(--ui-border)',
@@ -155,9 +181,9 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
                                 } }))] }), _jsx(Box, { sx: { flex: 1, overflow: 'auto' }, children: children })] })] }));
 }
 /* ── AppShell (public) ────────────────────────────────────────────────────── */
-export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, headerLeft, defaultMode = 'dark', sidebar, children }) {
+export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, headerLeft, defaultMode = 'dark', fontScale, fontBaseRem, sidebar, children, }) {
     const [mode, setMode] = useState(() => readPref(appId, 'theme', defaultMode));
-    const theme = useMemo(() => createAppTheme(mode, { extraCssVars }), [mode, extraCssVars]);
+    const theme = useMemo(() => createAppTheme(mode, { extraCssVars, fontScale, fontBaseRem }), [mode, extraCssVars, fontScale, fontBaseRem]);
     const onToggleTheme = useCallback(() => {
         setMode(m => {
             const next = m === 'dark' ? 'light' : 'dark';
@@ -165,5 +191,5 @@ export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, head
             return next;
         });
     }, [appId]);
-    return (_jsxs(ThemeProvider, { theme: theme, children: [_jsx(FontLoader, {}), _jsx(BaselineStyles, {}), _jsx(CssBaseline, {}), _jsx(AppShellContent, { appId: appId, appName: appName, nav: nav, headerExtras: headerExtras, headerLeft: headerLeft, sidebar: sidebar, mode: mode, onToggleTheme: onToggleTheme, children: children })] }));
+    return (_jsx(AppIdContext.Provider, { value: appId, children: _jsxs(ThemeProvider, { theme: theme, children: [_jsx(FontLoader, {}), _jsx(BaselineStyles, {}), _jsx(CssBaseline, {}), _jsx(AppShellContent, { appId: appId, appName: appName, nav: nav, headerExtras: headerExtras, headerLeft: headerLeft, sidebar: sidebar, mode: mode, onToggleTheme: onToggleTheme, children: children })] }) }));
 }

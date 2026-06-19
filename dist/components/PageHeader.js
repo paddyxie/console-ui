@@ -12,6 +12,6 @@ export function PageHeader({ title, subtitle, action }) {
             justifyContent: 'space-between',
             alignItems: 'center',
         }, children: [_jsxs(Box, { children: [_jsx(Typography, { sx: {
-                            fontSize: '1rem', fontWeight: 600, fontFamily: '"Syne", sans-serif',
-                        }, children: title }), subtitle && (_jsx(Typography, { sx: { fontSize: '0.77rem', color: 'var(--ui-text-secondary)' }, children: subtitle }))] }), action] }));
+                            fontSize: 'var(--ui-font-size-page-title)', fontWeight: 600, fontFamily: '"Syne", sans-serif',
+                        }, children: title }), subtitle && (_jsx(Typography, { sx: { fontSize: 'var(--ui-font-size-body-small)', color: 'var(--ui-text-secondary)' }, children: subtitle }))] }), action] }));
 }

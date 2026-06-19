@@ -79,6 +79,10 @@ export interface AppShellProps {
   headerLeft?: React.ReactNode
   /** Initial theme when no stored preference exists. Defaults to 'dark'. */
   defaultMode?: 'dark' | 'light'
+  /** Multiplies the shared typography scale. Defaults to 1. */
+  fontScale?: number
+  /** Base rem used by the shared typography scale. Defaults to 0.8125rem. */
+  fontBaseRem?: number
   /** Set to false to hide the sidebar and mobile bottom nav. Defaults to true. */
   sidebar?: boolean
   children: React.ReactNode
@@ -127,7 +131,7 @@ function NavRow({ item, active, collapsed }: { item: NavItem; active: boolean; c
         borderLeft: active ? '3px solid var(--ui-primary)' : '3px solid transparent',
         boxShadow: active ? '0 0 8px var(--ui-primary-shadow)' : 'none',
         fontWeight: active ? 600 : 400,
-        fontSize: '0.82rem',
+        fontSize: 'var(--ui-font-size-nav)',
         '&:hover': {
           color: active ? 'var(--ui-primary)' : 'var(--ui-text)',
           background: active ? 'var(--ui-primary-bg)' : 'var(--ui-hover)',
@@ -138,7 +142,7 @@ function NavRow({ item, active, collapsed }: { item: NavItem; active: boolean; c
       {!collapsed && (
         <Typography sx={{
           fontFamily: '"Outfit", sans-serif',
-          fontSize: '0.82rem', fontWeight: active ? 600 : 400, lineHeight: 1,
+          fontSize: 'var(--ui-font-size-nav)', fontWeight: active ? 600 : 400, lineHeight: 1,
         }}>
           {item.label}
         </Typography>
@@ -227,7 +231,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
           borderBottom: '1px solid var(--ui-border)',
           flexShrink: 0,
         }}>
-          <Typography sx={{ fontFamily: '"Syne", sans-serif', fontSize: '0.9rem', fontWeight: 700, color: 'var(--ui-primary)' }}>
+          <Typography sx={{ fontFamily: '"Syne", sans-serif', fontSize: 'var(--ui-font-size-app-title)', fontWeight: 700, color: 'var(--ui-primary)' }}>
             {appName}
           </Typography>
           {headerLeft}
@@ -251,8 +255,8 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
                 '&.Mui-selected': { color: 'var(--ui-primary)' },
               },
               '& .MuiBottomNavigationAction-label': {
-                fontFamily: '"Outfit", sans-serif', fontSize: '0.6rem',
-                '&.Mui-selected': { fontSize: '0.6rem' },
+                fontFamily: '"Outfit", sans-serif', fontSize: 'var(--ui-font-size-micro)',
+                '&.Mui-selected': { fontSize: 'var(--ui-font-size-micro)' },
               },
             }}
           >
@@ -285,13 +289,13 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mr: 'auto', minWidth: 0 }}>
           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5 }}>
-            <Typography sx={{ fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }}>
+            <Typography sx={{ fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: 'var(--ui-font-size-app-title)', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }}>
               {appName}
             </Typography>
             {pageTitle && (
               <>
-                <Typography sx={{ color: 'var(--ui-text-disabled)', fontSize: '0.85rem' }}>|</Typography>
-                <Typography sx={{ fontFamily: '"Fira Code", monospace', fontSize: '0.78rem', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }}>
+                <Typography sx={{ color: 'var(--ui-text-disabled)', fontSize: 'var(--ui-font-size-body-small)' }}>|</Typography>
+                <Typography sx={{ fontFamily: '"Fira Code", monospace', fontSize: 'var(--ui-font-size-top-nav)', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }}>
                   {pageTitle}
                 </Typography>
               </>
@@ -365,12 +369,27 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
 
 /* ── AppShell (public) ────────────────────────────────────────────────────── */
 
-export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, headerLeft, defaultMode = 'dark', sidebar, children }: AppShellProps) {
+export function AppShell({
+  appId,
+  appName,
+  nav,
+  extraCssVars,
+  headerExtras,
+  headerLeft,
+  defaultMode = 'dark',
+  fontScale,
+  fontBaseRem,
+  sidebar,
+  children,
+}: AppShellProps) {
   const [mode, setMode] = useState<'dark' | 'light'>(() =>
     readPref(appId, 'theme', defaultMode) as 'dark' | 'light'
   )
 
-  const theme = useMemo(() => createAppTheme(mode, { extraCssVars }), [mode, extraCssVars])
+  const theme = useMemo(
+    () => createAppTheme(mode, { extraCssVars, fontScale, fontBaseRem }),
+    [mode, extraCssVars, fontScale, fontBaseRem],
+  )
 
   const onToggleTheme = useCallback(() => {
     setMode(m => {

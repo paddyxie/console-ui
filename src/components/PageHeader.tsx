@@ -23,12 +23,12 @@ export function PageHeader({ title, subtitle, action }: PageHeaderProps) {
     }}>
       <Box>
         <Typography sx={{
-          fontSize: '1rem', fontWeight: 600, fontFamily: '"Syne", sans-serif',
+          fontSize: 'var(--ui-font-size-page-title)', fontWeight: 600, fontFamily: '"Syne", sans-serif',
         }}>
           {title}
         </Typography>
         {subtitle && (
-          <Typography sx={{ fontSize: '0.77rem', color: 'var(--ui-text-secondary)' }}>
+          <Typography sx={{ fontSize: 'var(--ui-font-size-body-small)', color: 'var(--ui-text-secondary)' }}>
             {subtitle}
           </Typography>
         )}

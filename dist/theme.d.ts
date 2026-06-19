@@ -65,7 +65,33 @@ export declare const accentTokens: {
     readonly errorDark: "#dc2626";
     readonly white: "#fff";
 };
+export interface TypographyScale {
+    appTitle: string;
+    pageTitle: string;
+    sectionTitle: string;
+    dialogTitle: string;
+    body: string;
+    bodySmall: string;
+    labelShrink: string;
+    nav: string;
+    topNav: string;
+    meta: string;
+    micro: string;
+    control: string;
+    controlSmall: string;
+    tableCell: string;
+    tableHead: string;
+    chip: string;
+    tooltip: string;
+    code: string;
+    markdownH1: string;
+    markdownH2: string;
+    markdownH3: string;
+}
+export declare function createTypographyScale(fontScale?: number, fontBaseRem?: number): TypographyScale;
 export interface ThemeOptions {
     extraCssVars?: Record<string, string>;
+    fontScale?: number;
+    fontBaseRem?: number;
 }
 export declare function createAppTheme(mode: PaletteMode, opts?: ThemeOptions): import("@mui/material").Theme;

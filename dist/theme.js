@@ -66,8 +66,38 @@ export const accentTokens = {
     errorDark: '#dc2626',
     white: '#fff',
 };
+const DEFAULT_FONT_BASE_REM = 0.8125;
+function rem(value) {
+    return `${Number(value.toFixed(4))}rem`;
+}
+export function createTypographyScale(fontScale = 1, fontBaseRem = DEFAULT_FONT_BASE_REM) {
+    const base = fontBaseRem * fontScale;
+    return {
+        appTitle: rem(base * 1.15),
+        pageTitle: rem(base * 1.23),
+        sectionTitle: rem(base * 1.08),
+        dialogTitle: rem(base * 1.08),
+        body: rem(base),
+        bodySmall: rem(base * 0.92),
+        labelShrink: rem(base * 1.08),
+        nav: rem(base),
+        topNav: rem(base * 0.92),
+        meta: rem(base * 0.85),
+        micro: rem(base * 0.77),
+        control: rem(base),
+        controlSmall: rem(base * 0.92),
+        tableCell: rem(base),
+        tableHead: rem(base * 0.85),
+        chip: rem(base * 0.85),
+        tooltip: rem(base * 0.92),
+        code: rem(base * 0.92),
+        markdownH1: rem(base * 1.23),
+        markdownH2: rem(base * 1.15),
+        markdownH3: rem(base * 1.08),
+    };
+}
 /* ── css variables ────────────────────────────────────────────────────────── */
-function cssVars(t, a, extra) {
+function cssVars(t, a, type, extra) {
     return {
         '--ui-bg': t.bg,
         '--ui-surface': t.surface,
@@ -121,13 +151,35 @@ function cssVars(t, a, extra) {
         '--ui-primary-shadow': alpha(a.primary, 0.4),
         '--ui-primary-shadow-strong': alpha(a.primary, 0.6),
         '--ui-success-shadow': alpha(a.success, 0.8),
+        '--ui-font-size-app-title': type.appTitle,
+        '--ui-font-size-page-title': type.pageTitle,
+        '--ui-font-size-section-title': type.sectionTitle,
+        '--ui-font-size-dialog-title': type.dialogTitle,
+        '--ui-font-size-body': type.body,
+        '--ui-font-size-body-small': type.bodySmall,
+        '--ui-font-size-label-shrink': type.labelShrink,
+        '--ui-font-size-nav': type.nav,
+        '--ui-font-size-top-nav': type.topNav,
+        '--ui-font-size-meta': type.meta,
+        '--ui-font-size-micro': type.micro,
+        '--ui-font-size-control': type.control,
+        '--ui-font-size-control-small': type.controlSmall,
+        '--ui-font-size-table-cell': type.tableCell,
+        '--ui-font-size-table-head': type.tableHead,
+        '--ui-font-size-chip': type.chip,
+        '--ui-font-size-tooltip': type.tooltip,
+        '--ui-font-size-code': type.code,
+        '--ui-font-size-markdown-h1': type.markdownH1,
+        '--ui-font-size-markdown-h2': type.markdownH2,
+        '--ui-font-size-markdown-h3': type.markdownH3,
         ...extra,
     };
 }
 export function createAppTheme(mode, opts) {
     const t = modeTokens[mode];
     const a = accentTokens;
-    const vars = cssVars(t, a, opts?.extraCssVars);
+    const type = createTypographyScale(opts?.fontScale, opts?.fontBaseRem);
+    const vars = cssVars(t, a, type, opts?.extraCssVars);
     return createTheme({
         palette: {
             mode,
@@ -141,17 +193,17 @@ export function createAppTheme(mode, opts) {
         },
         typography: {
             fontFamily: '"Outfit", sans-serif',
-            h1: { fontFamily: '"Syne", sans-serif' },
-            h2: { fontFamily: '"Syne", sans-serif' },
-            h3: { fontFamily: '"Syne", sans-serif' },
-            h4: { fontFamily: '"Syne", sans-serif' },
-            h5: { fontFamily: '"Syne", sans-serif', fontWeight: 600 },
-            h6: { fontFamily: '"Syne", sans-serif', fontWeight: 600 },
-            subtitle1: { fontFamily: '"Outfit", sans-serif', fontWeight: 500 },
-            subtitle2: { fontFamily: '"Outfit", sans-serif', fontWeight: 500, color: t.textSecondary },
-            body1: { fontFamily: '"Outfit", sans-serif' },
-            body2: { fontFamily: '"Outfit", sans-serif', color: t.textSecondary },
-            caption: { fontFamily: '"Fira Code", monospace', fontSize: '0.72rem' },
+            h1: { fontFamily: '"Syne", sans-serif', fontSize: type.pageTitle, fontWeight: 700 },
+            h2: { fontFamily: '"Syne", sans-serif', fontSize: type.pageTitle, fontWeight: 700 },
+            h3: { fontFamily: '"Syne", sans-serif', fontSize: type.sectionTitle, fontWeight: 650 },
+            h4: { fontFamily: '"Syne", sans-serif', fontSize: type.sectionTitle, fontWeight: 650 },
+            h5: { fontFamily: '"Syne", sans-serif', fontSize: type.sectionTitle, fontWeight: 600 },
+            h6: { fontFamily: '"Syne", sans-serif', fontSize: type.sectionTitle, fontWeight: 600 },
+            subtitle1: { fontFamily: '"Outfit", sans-serif', fontSize: type.body, fontWeight: 500 },
+            subtitle2: { fontFamily: '"Outfit", sans-serif', fontSize: type.bodySmall, fontWeight: 500, color: t.textSecondary },
+            body1: { fontFamily: '"Outfit", sans-serif', fontSize: type.body },
+            body2: { fontFamily: '"Outfit", sans-serif', fontSize: type.bodySmall, color: t.textSecondary },
+            caption: { fontFamily: '"Fira Code", monospace', fontSize: type.meta },
         },
         shape: { borderRadius: 8 },
         components: {
@@ -180,7 +232,7 @@ export function createAppTheme(mode, opts) {
                 styleOverrides: {
                     root: {
                         color: t.text,
-                        fontSize: '0.84rem',
+                        fontSize: type.controlSmall,
                         fontFamily: '"Outfit", sans-serif',
                         '& .MuiOutlinedInput-notchedOutline': { borderColor: t.borderStrong },
                     },
@@ -191,11 +243,11 @@ export function createAppTheme(mode, opts) {
                     root: {
                         color: t.textTertiary,
                         fontFamily: '"Outfit", sans-serif',
-                        fontSize: '0.82rem',
+                        fontSize: type.control,
                         fontWeight: 400,
                         lineHeight: 1.25,
                         '&.Mui-focused': { color: a.primary },
-                        '&.MuiInputLabel-shrink': { color: t.textSecondary, fontSize: '0.76rem', fontWeight: 500 },
+                        '&.MuiInputLabel-shrink': { color: t.textSecondary, fontSize: type.labelShrink, fontWeight: 500 },
                         '&.Mui-disabled': { color: t.textDisabled },
                         '&.Mui-error': { color: a.error },
                     },
@@ -206,15 +258,18 @@ export function createAppTheme(mode, opts) {
                     root: {
                         color: t.text,
                         fontFamily: '"Outfit", sans-serif',
-                        fontSize: '0.84rem',
+                        fontSize: type.control,
                         lineHeight: 1.4,
                     },
                     input: {
                         color: t.text,
                         font: 'inherit',
-                        '&::placeholder': { color: t.textDisabled, opacity: 1, fontSize: '0.8rem' },
+                        '&::placeholder': { color: t.textDisabled, opacity: 1, fontSize: type.bodySmall },
                     },
-                    inputSizeSmall: { fontSize: '0.82rem' },
+                    inputSizeSmall: { fontSize: type.controlSmall },
+                    inputMultiline: {
+                        padding: 0,
+                    },
                 },
             },
             MuiOutlinedInput: {
@@ -226,17 +281,23 @@ export function createAppTheme(mode, opts) {
                         '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: t.borderHover },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: a.primary },
                         '&.MuiOutlinedInput-sizeSmall': { minHeight: 30 },
+                        '&.MuiInputBase-multiline': {
+                            padding: '6px 10px',
+                        },
                     },
                     input: {
                         padding: '10px 12px',
-                        '&::placeholder': { color: t.textDisabled, opacity: 1, fontSize: '0.8rem' },
+                        '&::placeholder': { color: t.textDisabled, opacity: 1, fontSize: type.bodySmall },
+                        '&.MuiInputBase-inputMultiline': {
+                            padding: 0,
+                        },
                     },
                     inputSizeSmall: { padding: '6px 10px' },
                 },
             },
             MuiChip: {
                 styleOverrides: {
-                    root: { fontFamily: '"Fira Code", monospace', fontSize: '0.7rem', height: 22, borderRadius: 4 },
+                    root: { fontFamily: '"Fira Code", monospace', fontSize: type.chip, height: 22, borderRadius: 4 },
                 },
             },
             MuiButton: {
@@ -244,6 +305,7 @@ export function createAppTheme(mode, opts) {
                 styleOverrides: {
                     root: {
                         fontFamily: '"Outfit", sans-serif',
+                        fontSize: type.controlSmall,
                         fontWeight: 500,
                         textTransform: 'none',
                         letterSpacing: 0,
@@ -276,11 +338,22 @@ export function createAppTheme(mode, opts) {
                     },
                 ],
             },
+            MuiTab: {
+                styleOverrides: {
+                    root: {
+                        fontFamily: '"Outfit", sans-serif',
+                        fontSize: type.controlSmall,
+                        fontWeight: 600,
+                        letterSpacing: 0,
+                        textTransform: 'none',
+                    },
+                },
+            },
             MuiTooltip: {
                 styleOverrides: {
                     tooltip: {
                         fontFamily: '"Outfit", sans-serif',
-                        fontSize: '0.75rem',
+                        fontSize: type.tooltip,
                         background: t.tooltip,
                         border: `1px solid ${t.borderStrong}`,
                     },
@@ -288,10 +361,14 @@ export function createAppTheme(mode, opts) {
             },
             MuiTableCell: {
                 styleOverrides: {
-                    root: { borderColor: t.borderSubtle },
+                    root: {
+                        borderColor: t.borderSubtle,
+                        fontFamily: '"Outfit", sans-serif',
+                        fontSize: type.tableCell,
+                    },
                     head: {
                         fontFamily: '"Fira Code", monospace',
-                        fontSize: '0.7rem',
+                        fontSize: type.tableHead,
                         textTransform: 'uppercase',
                         letterSpacing: '0.06em',
                         color: t.textMuted,
@@ -312,7 +389,7 @@ export function createAppTheme(mode, opts) {
                 styleOverrides: {
                     root: {
                         fontFamily: '"Syne", sans-serif',
-                        fontSize: '0.9rem',
+                        fontSize: type.dialogTitle,
                         color: t.text,
                         paddingTop: 10,
                         paddingBottom: 10,
@@ -325,6 +402,7 @@ export function createAppTheme(mode, opts) {
                     root: {
                         color: t.text,
                         fontFamily: '"Outfit", sans-serif',
+                        fontSize: type.controlSmall,
                         '&.Mui-selected': { color: a.primary, backgroundColor: alpha(a.primary, 0.12) },
                         '&.Mui-selected:hover': { backgroundColor: alpha(a.primary, 0.16) },
                     },
