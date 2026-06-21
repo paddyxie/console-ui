@@ -26,6 +26,6 @@ export interface EditorProps {
     content?: JSONContent;
     onSave?: (data: EditorSaveData) => void;
     readOnly?: boolean;
-    defaultTheme?: Theme;
+    theme?: Theme;
 }
 export declare const Editor: import("react").ForwardRefExoticComponent<EditorProps & import("react").RefAttributes<EditorHandle>>;

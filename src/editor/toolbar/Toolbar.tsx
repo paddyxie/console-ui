@@ -9,7 +9,6 @@ import { CodeBlockToolbar } from '../extensions/CodeBlock/CodeBlockToolbar'
 import { MermaidToolbar } from '../extensions/Mermaid/MermaidToolbar'
 import { UndoRedoToolbar } from './UndoRedoToolbar'
 import { WidthControl } from './WidthControl'
-import { ThemeToggle } from './ThemeToggle'
 
 const Sep = () => <div className="toolbar-separator" />
 
@@ -37,11 +36,6 @@ export function Toolbar() {
       <CodeBlockToolbar />
       <Sep />
       <MermaidToolbar />
-      <div style={{ flex: 1 }} />
-      <Sep />
-      <div className="toolbar-group">
-        <ThemeToggle />
-      </div>
     </div>
   )
 }

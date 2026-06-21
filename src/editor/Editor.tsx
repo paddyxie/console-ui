@@ -63,11 +63,11 @@ export interface EditorProps {
   content?: JSONContent
   onSave?: (data: EditorSaveData) => void
   readOnly?: boolean
-  defaultTheme?: Theme
+  theme?: Theme
 }
 
 function EditorInner(
-  { content, onSave, readOnly = false }: Omit<EditorProps, 'defaultTheme'>,
+  { content, onSave, readOnly = false }: Omit<EditorProps, 'theme'>,
   ref: Ref<EditorHandle>
 ) {
   const editor = useEditor({
@@ -179,9 +179,9 @@ const EditorUI = forwardRef<EditorHandle, { onSave?: (data: EditorSaveData) => v
 const EditorInnerWithRef = forwardRef(EditorInner)
 
 export const Editor = forwardRef<EditorHandle, EditorProps>(
-  function Editor({ defaultTheme, ...props }, ref) {
+  function Editor({ theme, ...props }, ref) {
     return (
-      <ThemeProvider defaultTheme={defaultTheme}>
+      <ThemeProvider theme={theme}>
         <WidthProvider>
           <EditorInnerWithRef {...props} ref={ref} />
         </WidthProvider>

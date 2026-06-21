@@ -9,8 +9,7 @@ import { CodeBlockToolbar } from '../extensions/CodeBlock/CodeBlockToolbar';
 import { MermaidToolbar } from '../extensions/Mermaid/MermaidToolbar';
 import { UndoRedoToolbar } from './UndoRedoToolbar';
 import { WidthControl } from './WidthControl';
-import { ThemeToggle } from './ThemeToggle';
 const Sep = () => _jsx("div", { className: "toolbar-separator" });
 export function Toolbar() {
-    return (_jsxs("div", { className: "editor-toolbar", children: [_jsx("div", { className: "toolbar-group", children: _jsx(WidthControl, {}) }), _jsx(Sep, {}), _jsx(BasicFormattingToolbar, {}), _jsx(Sep, {}), _jsx(ListsToolbar, {}), _jsx(Sep, {}), _jsx(LinkToolbar, {}), _jsx(Sep, {}), _jsx(ImageToolbar, {}), _jsx(Sep, {}), _jsx(TableInsertButton, {}), _jsx(Sep, {}), _jsx("div", { className: "toolbar-group", children: _jsx(UndoRedoToolbar, {}) }), _jsx(Sep, {}), _jsx(CodeBlockToolbar, {}), _jsx(Sep, {}), _jsx(MermaidToolbar, {}), _jsx("div", { style: { flex: 1 } }), _jsx(Sep, {}), _jsx("div", { className: "toolbar-group", children: _jsx(ThemeToggle, {}) })] }));
+    return (_jsxs("div", { className: "editor-toolbar", children: [_jsx("div", { className: "toolbar-group", children: _jsx(WidthControl, {}) }), _jsx(Sep, {}), _jsx(BasicFormattingToolbar, {}), _jsx(Sep, {}), _jsx(ListsToolbar, {}), _jsx(Sep, {}), _jsx(LinkToolbar, {}), _jsx(Sep, {}), _jsx(ImageToolbar, {}), _jsx(Sep, {}), _jsx(TableInsertButton, {}), _jsx(Sep, {}), _jsx("div", { className: "toolbar-group", children: _jsx(UndoRedoToolbar, {}) }), _jsx(Sep, {}), _jsx(CodeBlockToolbar, {}), _jsx(Sep, {}), _jsx(MermaidToolbar, {})] }));
 }

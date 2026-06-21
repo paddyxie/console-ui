@@ -115,6 +115,6 @@ const EditorUI = forwardRef(function EditorUI({ onSave, readOnly }, ref) {
     return (_jsxs("div", { className: "editor-root", "data-theme": theme, "data-read-only": readOnly ? 'true' : 'false', children: [!readOnly && _jsx(Toolbar, {}), _jsx("div", { className: "editor-workspace", children: _jsx("div", { className: "editor-document-column", children: _jsx("div", { className: "editor-main", style: { ...widthStyle, margin: '0 auto', transition: 'width 0.2s ease, max-width 0.2s ease' }, children: _jsx("div", { className: "editor-wrapper", children: _jsxs("div", { className: "editor-content", children: [_jsx(EditorContent, { editor: editor }), !readOnly && _jsx(TableFloatingToolbar, { editor: editor })] }) }) }) }) })] }));
 });
 const EditorInnerWithRef = forwardRef(EditorInner);
-export const Editor = forwardRef(function Editor({ defaultTheme, ...props }, ref) {
-    return (_jsx(ThemeProvider, { defaultTheme: defaultTheme, children: _jsx(WidthProvider, { children: _jsx(EditorInnerWithRef, { ...props, ref: ref }) }) }));
+export const Editor = forwardRef(function Editor({ theme, ...props }, ref) {
+    return (_jsx(ThemeProvider, { theme: theme, children: _jsx(WidthProvider, { children: _jsx(EditorInnerWithRef, { ...props, ref: ref }) }) }));
 });

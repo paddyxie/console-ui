@@ -5,7 +5,7 @@
   align-items: center;
   gap: 1px;
   width: 100%;
-  padding: 5px 32px;
+  padding: 5px 12px;
   background: var(--c-bg);
   border: 0;
   border-bottom: 1px solid var(--c-border-subtle);
@@ -210,7 +210,7 @@
 
 .editor-workspace {
   width: 100%;
-  padding: 0 32px 16px;
+  padding-bottom: 16px;
 }
 
 .editor-document-column {
@@ -240,15 +240,15 @@
 }
 
 .editor-content {
-  padding: 28px 36px;
-  min-height: 520px;
+  padding: 16px 20px;
+  min-height: 300px;
   outline: none;
   position: relative;
 }
 
 .editor-content .ProseMirror {
   outline: none;
-  min-height: 460px;
+  min-height: 240px;
   font-size: 15px;
   line-height: 1.75;
   color: var(--c-text);
@@ -270,15 +270,6 @@
 .editor-content .ProseMirror li > ul,
 .editor-content .ProseMirror li > ol { margin: 0; }
 
-@media (max-width: 1100px) {
-  .editor-toolbar {
-    padding-inline: 16px;
-  }
-
-  .editor-workspace {
-    padding-inline: 16px;
-  }
-}
 
 /* ── Task list ──────────────────────────────────────────── */
 .editor-content .ProseMirror ul[data-type="taskList"] {
