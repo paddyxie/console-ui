@@ -1,0 +1,45 @@
+.image-node-view {
+  display: block;
+  line-height: 0;
+}
+
+.image-wrapper {
+  display: inline-block;
+  position: relative;
+  line-height: 0;
+}
+
+.image-node-view.selected .image-wrapper {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+.image-wrapper img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border: 2px solid #4a90e2;
+  border-radius: 2px;
+  z-index: 10;
+}
+
+.resize-handle-nw { top: -5px;  left: -5px;  cursor: nw-resize; }
+.resize-handle-n  { top: -5px;  left: calc(50% - 5px); cursor: n-resize; }
+.resize-handle-ne { top: -5px;  right: -5px; cursor: ne-resize; }
+.resize-handle-e  { top: calc(50% - 5px); right: -5px; cursor: e-resize; }
+.resize-handle-se { bottom: -5px; right: -5px; cursor: se-resize; }
+.resize-handle-s  { bottom: -5px; left: calc(50% - 5px); cursor: s-resize; }
+.resize-handle-sw { bottom: -5px; left: -5px;  cursor: sw-resize; }
+.resize-handle-w  { top: calc(50% - 5px); left: -5px;  cursor: w-resize; }
+
+@media print {
+  .resize-handle { display: none; }
+}

@@ -1,0 +1,1 @@
+export declare const tableExtensions: (import("@tiptap/core").Node<import("@tiptap/extension-table").TableOptions, any> | import("@tiptap/core").Node<import("@tiptap/extension-table").TableRowOptions, any>)[];

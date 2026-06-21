@@ -1,0 +1,57 @@
+/* ── CSS custom properties — scoped to the editor root ──── */
+.editor-root {
+  /* Light (default) */
+  --c-bg:              #ffffff;
+  --c-bg-subtle:       #f9fafb;
+  --c-bg-muted:        #f3f4f6;
+  --c-border:          #e5e7eb;
+  --c-border-subtle:   #f0f0f0;
+  --c-text:            #111827;
+  --c-text-secondary:  #374151;
+  --c-text-muted:      #6b7280;
+  --c-text-subtle:     #9ca3af;
+  --c-primary:         #2563eb;
+  --c-primary-hover:   #1d4ed8;
+  --c-primary-bg:      #eff6ff;
+  --c-danger:          #dc2626;
+  --c-danger-bg:       #fef2f2;
+  --c-success-bg:      #ecfdf5;
+  --c-success-border:  #6ee7b7;
+  --c-success-text:    #065f46;
+  --c-warning-bg:      #fffbeb;
+  --c-warning-border:  #fde68a;
+  --c-warning-text:    #78350f;
+  --c-shadow:          rgba(0,0,0,0.12);
+  --c-shadow-sm:       rgba(0,0,0,0.06);
+  --c-selection:       rgba(37,99,235,0.18);
+
+  color: var(--c-text);
+  background: var(--c-bg);
+}
+
+/* ── Dark overrides (Catppuccin Mocha) ──────────────────── */
+.editor-root[data-theme="dark"] {
+  --c-bg:              #1e1e2e;
+  --c-bg-subtle:       #181825;
+  --c-bg-muted:        #313244;
+  --c-border:          #45475a;
+  --c-border-subtle:   #313244;
+  --c-text:            #cdd6f4;
+  --c-text-secondary:  #bac2de;
+  --c-text-muted:      #a6adc8;
+  --c-text-subtle:     #6c7086;
+  --c-primary:         #89b4fa;
+  --c-primary-hover:   #74c7ec;
+  --c-primary-bg:      #1e3358;
+  --c-danger:          #f38ba8;
+  --c-danger-bg:       #3d1a26;
+  --c-success-bg:      #1a3a2a;
+  --c-success-border:  #40a060;
+  --c-success-text:    #a6e3a1;
+  --c-warning-bg:      #2a2018;
+  --c-warning-border:  #8b6914;
+  --c-warning-text:    #f9e2af;
+  --c-shadow:          rgba(0,0,0,0.4);
+  --c-shadow-sm:       rgba(0,0,0,0.2);
+  --c-selection:       rgba(137,180,250,0.25);
+}

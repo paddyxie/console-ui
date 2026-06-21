@@ -1,0 +1,342 @@
+/* ── Toolbar shell ──────────────────────────────────────── */
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1px;
+  width: 100%;
+  padding: 5px 32px;
+  background: var(--c-bg);
+  border: 0;
+  border-bottom: 1px solid var(--c-border-subtle);
+  border-radius: 0;
+  position: sticky;
+  top: var(--editor-toolbar-top, 0);
+  z-index: 25;
+  box-shadow: 0 1px 0 var(--c-border);
+}
+
+/* ── Toolbar groups & buttons ───────────────────────────── */
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  position: relative;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 9px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.toolbar-btn svg {
+  flex-shrink: 0;
+  width: 17px;
+  height: 17px;
+}
+
+.toolbar-btn:hover {
+  background: var(--c-bg-muted);
+  color: var(--c-text);
+}
+
+.toolbar-btn.active {
+  background: var(--c-primary-bg);
+  color: var(--c-primary);
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 20px;
+  background: var(--c-border);
+  margin: 0 5px;
+  flex-shrink: 0;
+}
+
+/* ── Heading dropdown ───────────────────────────────────── */
+.toolbar-heading-select {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  background: var(--c-bg);
+  color: var(--c-text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  appearance: none;
+  padding-right: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ca3af'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  transition: border-color 0.12s;
+  min-width: 110px;
+}
+
+.toolbar-heading-select:focus {
+  outline: none;
+  border-color: var(--c-primary);
+}
+
+.width-select {
+  min-width: 72px;
+}
+
+/* ── Generic popover (link, image, table insert) ────────── */
+.link-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 200;
+  display: flex;
+  gap: 6px;
+  padding: 12px;
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px var(--c-shadow), 0 2px 6px var(--c-shadow-sm);
+  min-width: 280px;
+}
+
+.link-popover input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--c-text);
+  background: var(--c-bg);
+  outline: none;
+  transition: border-color 0.12s;
+}
+
+.link-popover input:focus {
+  border-color: var(--c-primary);
+}
+
+.link-popover button {
+  padding: 6px 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  background: var(--c-bg-subtle);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+
+.link-popover button:hover {
+  background: var(--c-bg-muted);
+}
+
+.link-popover button:first-of-type {
+  background: var(--c-primary);
+  color: #fff;
+  border-color: var(--c-primary);
+}
+
+.link-popover button:first-of-type:hover {
+  background: var(--c-primary-hover);
+}
+
+/* ── Shared button styles ───────────────────────────────── */
+.btn-primary {
+  padding: 6px 14px;
+  background: var(--c-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.12s;
+}
+.btn-primary:hover { background: var(--c-primary-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+
+.btn-ghost {
+  padding: 6px 12px;
+  background: var(--c-bg-muted);
+  color: var(--c-text-secondary);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.12s;
+}
+.btn-ghost:hover { background: var(--c-border); }
+
+.btn-danger {
+  padding: 6px 12px;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.12s;
+}
+.btn-danger:hover { background: #fef2f2; }
+
+/* ── Editor content wrapper ─────────────────────────────── */
+.editor-root {
+  position: relative;
+  width: 100%;
+}
+
+.editor-workspace {
+  width: 100%;
+  padding: 0 32px 16px;
+}
+
+.editor-document-column {
+  min-width: 0;
+}
+
+.editor-main {
+  position: relative;
+  min-width: 0;
+}
+
+.editor-wrapper {
+  border: 1px solid var(--c-border);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  background: var(--c-bg);
+  position: relative;
+}
+
+.editor-root[data-read-only="true"] .editor-wrapper {
+  border-top: 1px solid var(--c-border);
+  border-radius: 10px;
+}
+
+.editor-root[data-read-only="true"] .mermaid-header {
+  display: none;
+}
+
+.editor-content {
+  padding: 28px 36px;
+  min-height: 520px;
+  outline: none;
+  position: relative;
+}
+
+.editor-content .ProseMirror {
+  outline: none;
+  min-height: 460px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--c-text);
+  caret-color: var(--c-primary);
+}
+
+.editor-content .ProseMirror p { margin: 0 0 0.8em; }
+.editor-content .ProseMirror h1 { font-size: 2em;   font-weight: 700; margin: 1em 0 0.4em; color: var(--c-text); }
+.editor-content .ProseMirror h2 { font-size: 1.5em; font-weight: 600; margin: 0.9em 0 0.35em; color: var(--c-text); }
+.editor-content .ProseMirror h3 { font-size: 1.2em; font-weight: 600; margin: 0.8em 0 0.3em; color: var(--c-text); }
+
+.editor-content .ProseMirror ul,
+.editor-content .ProseMirror ol {
+  padding-left: 1.6em;
+  margin: 0.5em 0;
+}
+.editor-content .ProseMirror li { margin: 0.05em 0; }
+.editor-content .ProseMirror li p { margin: 0; }
+.editor-content .ProseMirror li > ul,
+.editor-content .ProseMirror li > ol { margin: 0; }
+
+@media (max-width: 1100px) {
+  .editor-toolbar {
+    padding-inline: 16px;
+  }
+
+  .editor-workspace {
+    padding-inline: 16px;
+  }
+}
+
+/* ── Task list ──────────────────────────────────────────── */
+.editor-content .ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.2em;
+}
+.editor-content .ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+  margin: 0.05em 0;
+}
+.editor-content .ProseMirror ul[data-type="taskList"] li > label {
+  flex-shrink: 0;
+  margin-top: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+.editor-content .ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--c-primary);
+}
+.editor-content .ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1;
+  min-width: 0;
+}
+.editor-content .ProseMirror ul[data-type="taskList"] li > div > ul[data-type="taskList"] {
+  margin: 0;
+  padding-left: 1.2em;
+}
+.editor-content .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.editor-content .ProseMirror a {
+  color: var(--c-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.editor-content .ProseMirror blockquote {
+  border-left: 3px solid var(--c-border);
+  padding-left: 1em;
+  color: var(--c-text-muted);
+  margin: 1em 0;
+}
+
+.editor-content .ProseMirror ::selection {
+  background: var(--c-selection);
+  color: inherit;
+}
+
+/* ── Print ──────────────────────────────────────────────── */
+@media print {
+  .editor-toolbar     { display: none !important; }
+  .editor-wrapper     { border: none !important; border-radius: 0 !important; }
+  .editor-content     { padding: 0 !important; }
+}
