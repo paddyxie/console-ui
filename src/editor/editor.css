@@ -206,23 +206,40 @@
 .editor-root {
   position: relative;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  padding-bottom: 16px;
+  min-height: 0;
 }
 
 .editor-document-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
 }
 
 .editor-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   position: relative;
   min-width: 0;
+  min-height: 0;
 }
 
 .editor-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--c-border);
   border-top: none;
   border-radius: 0 0 10px 10px;
@@ -240,6 +257,9 @@
 }
 
 .editor-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: 16px 20px;
   min-height: 300px;
   outline: none;
@@ -247,6 +267,7 @@
 }
 
 .editor-content .ProseMirror {
+  flex: 1;
   outline: none;
   min-height: 240px;
   font-size: 15px;
