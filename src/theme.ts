@@ -62,7 +62,30 @@ export type ModeTokens = (typeof modeTokens)[keyof typeof modeTokens]
 
 /* ── accent tokens ────────────────────────────────────────────────────────── */
 
-export const accentTokens = {
+export interface AccentTokens {
+  primary: string
+  primaryLight: string
+  primaryDark: string
+  primaryAlt: string
+  success: string
+  warning: string
+  warningAlt: string
+  error: string
+  errorDark: string
+  white: string
+}
+
+export type AccentTokenOverrides = Partial<AccentTokens>
+export type ModeAccentTokenOverrides = Partial<Record<PaletteMode, AccentTokenOverrides>>
+export type AccentTokenInput = AccentTokenOverrides | ModeAccentTokenOverrides
+
+export interface AccentPaletteOption {
+  id: string
+  label: string
+  tokens: AccentTokenInput
+}
+
+export const accentTokens: AccentTokens = {
   primary: '#818cf8',
   primaryLight: '#a5b4fc',
   primaryDark: '#6366f1',
@@ -74,6 +97,81 @@ export const accentTokens = {
   errorDark: '#dc2626',
   white: '#fff',
 } as const
+
+const lightAccentTokens: AccentTokenOverrides = {
+  primary: '#4f46e5',
+  primaryLight: '#6366f1',
+  primaryDark: '#4338ca',
+  primaryAlt: '#2563eb',
+}
+
+export const accentPalettes = [
+  {
+    id: 'cyan',
+    label: 'Cyan',
+    tokens: {
+      dark: { primary: '#22d3ee', primaryLight: '#67e8f9', primaryDark: '#06b6d4', primaryAlt: '#38bdf8' },
+      light: { primary: '#0891b2', primaryLight: '#06b6d4', primaryDark: '#0e7490', primaryAlt: '#0284c7' },
+    },
+  },
+  {
+    id: 'violet',
+    label: 'Violet',
+    tokens: {
+      dark: { primary: '#8b5cf6', primaryLight: '#a78bfa', primaryDark: '#7c3aed', primaryAlt: '#818cf8' },
+      light: { primary: '#7c3aed', primaryLight: '#8b5cf6', primaryDark: '#6d28d9', primaryAlt: '#4f46e5' },
+    },
+  },
+  {
+    id: 'emerald',
+    label: 'Emerald',
+    tokens: {
+      dark: { primary: '#10b981', primaryLight: '#34d399', primaryDark: '#059669', primaryAlt: '#14b8a6' },
+      light: { primary: '#059669', primaryLight: '#10b981', primaryDark: '#047857', primaryAlt: '#0d9488' },
+    },
+  },
+  {
+    id: 'amber',
+    label: 'Amber',
+    tokens: {
+      dark: { primary: '#f59e0b', primaryLight: '#fbbf24', primaryDark: '#d97706', primaryAlt: '#eab308' },
+      light: { primary: '#d97706', primaryLight: '#f59e0b', primaryDark: '#b45309', primaryAlt: '#ca8a04' },
+    },
+  },
+  {
+    id: 'rose',
+    label: 'Rose',
+    tokens: {
+      dark: { primary: '#f43f5e', primaryLight: '#fb7185', primaryDark: '#e11d48', primaryAlt: '#ec4899' },
+      light: { primary: '#e11d48', primaryLight: '#f43f5e', primaryDark: '#be123c', primaryAlt: '#db2777' },
+    },
+  },
+  {
+    id: 'slate',
+    label: 'Slate',
+    tokens: {
+      dark: { primary: '#94a3b8', primaryLight: '#cbd5e1', primaryDark: '#64748b', primaryAlt: '#38bdf8' },
+      light: { primary: '#475569', primaryLight: '#64748b', primaryDark: '#334155', primaryAlt: '#0f766e' },
+    },
+  },
+] as const satisfies readonly AccentPaletteOption[]
+
+function isModeAccentTokenOverrides(input: AccentTokenInput): input is ModeAccentTokenOverrides {
+  return 'dark' in input || 'light' in input
+}
+
+export function resolveAccentTokens(mode: PaletteMode, input?: AccentTokenInput): AccentTokens {
+  const base = {
+    ...accentTokens,
+    ...(mode === 'light' ? lightAccentTokens : {}),
+  }
+  const overrides = input
+    ? isModeAccentTokenOverrides(input)
+      ? input[mode]
+      : input
+    : undefined
+  return { ...base, ...overrides }
+}
 
 /* ── typography scale ─────────────────────────────────────────────────────── */
 
@@ -138,7 +236,7 @@ export function createTypographyScale(fontScale = 1, fontBaseRem = DEFAULT_FONT_
 
 function cssVars(
   t: ModeTokens,
-  a: typeof accentTokens,
+  a: AccentTokens,
   type: TypographyScale,
   extra?: Record<string, string>,
 ) {
@@ -224,13 +322,14 @@ function cssVars(
 
 export interface ThemeOptions {
   extraCssVars?: Record<string, string>
+  accentTokens?: AccentTokenInput
   fontScale?: number
   fontBaseRem?: number
 }
 
 export function createAppTheme(mode: PaletteMode, opts?: ThemeOptions) {
   const t = modeTokens[mode]
-  const a = accentTokens
+  const a = resolveAccentTokens(mode, opts?.accentTokens)
   const type = createTypographyScale(opts?.fontScale, opts?.fontBaseRem)
   const vars = cssVars(t, a, type, opts?.extraCssVars)
 

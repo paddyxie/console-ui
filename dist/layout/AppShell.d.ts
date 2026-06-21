@@ -1,4 +1,5 @@
 import React from 'react';
+import { type AccentPaletteOption, type AccentTokenInput } from '../theme';
 /**
  * Read and write a namespaced user preference from localStorage.
  * Must be used inside an AppShell (which provides the appId context).
@@ -20,6 +21,12 @@ export interface AppShellProps {
     nav: NavItem[];
     /** Project-specific CSS variables merged into the --ui-* namespace. */
     extraCssVars?: Record<string, string>;
+    /** Project-specific accent tokens. Ignored when accentPalettes is provided. */
+    accentTokens?: AccentTokenInput;
+    /** Optional accent choices shown in the header and persisted by appId. */
+    accentPalettes?: readonly AccentPaletteOption[];
+    /** Initial accent palette id when no stored preference exists. Defaults to the first palette. */
+    defaultAccentId?: string;
     /** Extra content in the header right area (before the theme toggle). */
     headerExtras?: React.ReactNode;
     /** Content shown in the header, immediately to the right of the app title. */
@@ -38,4 +45,4 @@ export declare function ThemeToggle({ mode, onToggleTheme }: {
     mode: 'dark' | 'light';
     onToggleTheme: () => void;
 }): import("react/jsx-runtime").JSX.Element;
-export declare function AppShell({ appId, appName, nav, extraCssVars, headerExtras, headerLeft, defaultMode, fontScale, fontBaseRem, sidebar, children, }: AppShellProps): import("react/jsx-runtime").JSX.Element;
+export declare function AppShell({ appId, appName, nav, extraCssVars, accentTokens, accentPalettes, defaultAccentId, headerExtras, headerLeft, defaultMode, fontScale, fontBaseRem, sidebar, children, }: AppShellProps): import("react/jsx-runtime").JSX.Element;

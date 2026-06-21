@@ -1,17 +1,20 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState, useCallback, useRef, useMemo, createContext, useContext } from 'react';
-import { Box, Typography, BottomNavigation, BottomNavigationAction, IconButton, Paper, Tooltip, useMediaQuery, useTheme as useMuiTheme, ThemeProvider, CssBaseline, } from '@mui/material';
+import { Box, Typography, BottomNavigation, BottomNavigationAction, IconButton, Paper, Tooltip, useMediaQuery, useTheme as useMuiTheme, ThemeProvider, CssBaseline, Menu, MenuItem, ListItemIcon, } from '@mui/material';
 import { NavLink, useLocation } from 'react-router-dom';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { createAppTheme, SIDEBAR_W } from '../theme';
+import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
+import CheckIcon from '@mui/icons-material/Check';
+import { createAppTheme, resolveAccentTokens, SIDEBAR_W, } from '../theme';
 import { FontLoader, BaselineStyles } from '../Baseline';
 /* ── constants ────────────────────────────────────────────────────────────── */
 const MIN_W = 160;
 const MAX_W = 360;
 const COLLAPSED_W = 52;
+const ACCENT_KEY = 'accent';
 /* ── Preference context + helpers ─────────────────────────────────────────── */
 const AppIdContext = createContext('');
 function readPref(appId, key, fallback) {
@@ -59,6 +62,35 @@ export function ThemeToggle({ mode, onToggleTheme }) {
                 ? _jsx(LightModeIcon, { sx: { fontSize: 18 } })
                 : _jsx(DarkModeIcon, { sx: { fontSize: 18 } }) }) }));
 }
+function AccentPaletteMenu({ mode, palettes, selectedId, onSelect, }) {
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    if (palettes.length < 2)
+        return null;
+    return (_jsxs(_Fragment, { children: [_jsx(Tooltip, { title: "Theme color", children: _jsx(IconButton, { size: "small", onClick: event => setAnchorEl(event.currentTarget), sx: { color: 'var(--ui-text-secondary)', '&:hover': { color: 'primary.main' } }, children: _jsx(PaletteOutlinedIcon, { sx: { fontSize: 18 } }) }) }), _jsx(Menu, { anchorEl: anchorEl, open: open, onClose: () => setAnchorEl(null), anchorOrigin: { vertical: 'bottom', horizontal: 'right' }, transformOrigin: { vertical: 'top', horizontal: 'right' }, MenuListProps: { dense: true }, PaperProps: {
+                    sx: {
+                        mt: 0.75,
+                        minWidth: 148,
+                        background: 'var(--ui-surface)',
+                        borderColor: 'var(--ui-border-strong)',
+                    },
+                }, children: palettes.map(palette => {
+                    const selectedPalette = palette.id === selectedId;
+                    const color = resolveAccentTokens(mode, palette.tokens).primary;
+                    return (_jsxs(MenuItem, { selected: selectedPalette, onClick: () => {
+                            onSelect(palette.id);
+                            setAnchorEl(null);
+                        }, sx: { gap: 1, minHeight: 30 }, children: [_jsx(Box, { sx: {
+                                    width: 14,
+                                    height: 14,
+                                    borderRadius: '50%',
+                                    background: color,
+                                    border: '1px solid var(--ui-border-strong)',
+                                    boxShadow: selectedPalette ? '0 0 0 3px var(--ui-primary-border)' : 'none',
+                                    flexShrink: 0,
+                                } }), _jsx(Typography, { sx: { fontFamily: '"Outfit", sans-serif', fontSize: 'var(--ui-font-size-control-small)', flex: 1 }, children: palette.label }), _jsx(ListItemIcon, { sx: { minWidth: 18, color: selectedPalette ? 'var(--ui-primary)' : 'transparent' }, children: _jsx(CheckIcon, { sx: { fontSize: 16 } }) })] }, palette.id));
+                }) })] }));
+}
 /* ── NavRow ───────────────────────────────────────────────────────────────── */
 function NavRow({ item, active, collapsed }) {
     const row = (_jsxs(Box, { component: NavLink, to: item.path, sx: {
@@ -93,7 +125,7 @@ function findActive(nav, pathname) {
     return nav.find(n => pathname === n.path || pathname.startsWith(`${n.path}/`));
 }
 /* ── AppShellContent — rendered inside ThemeProvider ─────────────────────── */
-function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sidebar = true, mode, onToggleTheme, children }) {
+function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sidebar = true, mode, onToggleTheme, accentPalettes, accentId, onAccentChange, children, }) {
     const muiTheme = useMuiTheme();
     const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
     const location = useLocation();
@@ -143,7 +175,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
                         background: 'var(--ui-surface-muted)',
                         borderBottom: '1px solid var(--ui-border)',
                         flexShrink: 0,
-                    }, children: [_jsx(Typography, { sx: { fontFamily: '"Syne", sans-serif', fontSize: 'var(--ui-font-size-app-title)', fontWeight: 700, color: 'var(--ui-primary)' }, children: appName }), headerLeft, headerExtras, _jsx(Box, { sx: { ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }, children: _jsx(ThemeToggle, { mode: mode, onToggleTheme: onToggleTheme }) })] }), _jsx(Box, { sx: { flex: 1, overflow: 'auto', minHeight: 0 }, children: children }), sidebar && _jsx(Paper, { elevation: 0, sx: { background: 'var(--ui-surface-muted)', borderTop: '1px solid var(--ui-border)', flexShrink: 0 }, children: _jsx(BottomNavigation, { value: activePath, sx: {
+                    }, children: [_jsx(Typography, { sx: { fontFamily: '"Syne", sans-serif', fontSize: 'var(--ui-font-size-app-title)', fontWeight: 700, color: 'var(--ui-primary)' }, children: appName }), headerLeft, headerExtras, _jsxs(Box, { sx: { ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }, children: [accentPalettes && (_jsx(AccentPaletteMenu, { mode: mode, palettes: accentPalettes, selectedId: accentId, onSelect: onAccentChange })), _jsx(ThemeToggle, { mode: mode, onToggleTheme: onToggleTheme })] })] }), _jsx(Box, { sx: { flex: 1, overflow: 'auto', minHeight: 0 }, children: children }), sidebar && _jsx(Paper, { elevation: 0, sx: { background: 'var(--ui-surface-muted)', borderTop: '1px solid var(--ui-border)', flexShrink: 0 }, children: _jsx(BottomNavigation, { value: activePath, sx: {
                             background: 'transparent', height: 56,
                             '& .MuiBottomNavigationAction-root': {
                                 color: 'var(--ui-text-secondary)', minWidth: 0, padding: '6px 0',
@@ -162,7 +194,7 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
                     background: 'var(--ui-surface-muted)',
                     borderBottom: '1px solid var(--ui-border)',
                     zIndex: 10,
-                }, children: [_jsxs(Box, { sx: { display: 'flex', alignItems: 'center', gap: 2, mr: 'auto', minWidth: 0 }, children: [_jsxs(Box, { sx: { display: 'flex', alignItems: 'baseline', gap: 1.5 }, children: [_jsx(Typography, { sx: { fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: 'var(--ui-font-size-app-title)', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }, children: appName }), pageTitle && (_jsxs(_Fragment, { children: [_jsx(Typography, { sx: { color: 'var(--ui-text-disabled)', fontSize: 'var(--ui-font-size-body-small)' }, children: "|" }), _jsx(Typography, { sx: { fontFamily: '"Fira Code", monospace', fontSize: 'var(--ui-font-size-top-nav)', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }, children: pageTitle })] }))] }), headerLeft] }), _jsxs(Box, { sx: { display: 'flex', alignItems: 'center', gap: 1 }, children: [headerExtras, _jsx(ThemeToggle, { mode: mode, onToggleTheme: onToggleTheme })] })] }), _jsxs(Box, { sx: { flex: 1, display: 'flex', overflow: 'hidden' }, children: [sidebar && _jsxs(Box, { sx: {
+                }, children: [_jsxs(Box, { sx: { display: 'flex', alignItems: 'center', gap: 2, mr: 'auto', minWidth: 0 }, children: [_jsxs(Box, { sx: { display: 'flex', alignItems: 'baseline', gap: 1.5 }, children: [_jsx(Typography, { sx: { fontFamily: '"Syne", sans-serif', fontWeight: 700, fontSize: 'var(--ui-font-size-app-title)', color: 'var(--ui-primary)', whiteSpace: 'nowrap' }, children: appName }), pageTitle && (_jsxs(_Fragment, { children: [_jsx(Typography, { sx: { color: 'var(--ui-text-disabled)', fontSize: 'var(--ui-font-size-body-small)' }, children: "|" }), _jsx(Typography, { sx: { fontFamily: '"Fira Code", monospace', fontSize: 'var(--ui-font-size-top-nav)', color: 'var(--ui-text-secondary)', whiteSpace: 'nowrap' }, children: pageTitle })] }))] }), headerLeft] }), _jsxs(Box, { sx: { display: 'flex', alignItems: 'center', gap: 1 }, children: [headerExtras, accentPalettes && (_jsx(AccentPaletteMenu, { mode: mode, palettes: accentPalettes, selectedId: accentId, onSelect: onAccentChange })), _jsx(ThemeToggle, { mode: mode, onToggleTheme: onToggleTheme })] })] }), _jsxs(Box, { sx: { flex: 1, display: 'flex', overflow: 'hidden' }, children: [sidebar && _jsxs(Box, { sx: {
                             width: effectiveW, flexShrink: 0,
                             background: 'var(--ui-surface-muted)',
                             borderRight: '1px solid var(--ui-border)',
@@ -181,9 +213,14 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
                                 } }))] }), _jsx(Box, { sx: { flex: 1, overflow: 'auto' }, children: children })] })] }));
 }
 /* ── AppShell (public) ────────────────────────────────────────────────────── */
-export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, headerLeft, defaultMode = 'dark', fontScale, fontBaseRem, sidebar, children, }) {
+export function AppShell({ appId, appName, nav, extraCssVars, accentTokens, accentPalettes, defaultAccentId, headerExtras, headerLeft, defaultMode = 'dark', fontScale, fontBaseRem, sidebar, children, }) {
     const [mode, setMode] = useState(() => readPref(appId, 'theme', defaultMode));
-    const theme = useMemo(() => createAppTheme(mode, { extraCssVars, fontScale, fontBaseRem }), [mode, extraCssVars, fontScale, fontBaseRem]);
+    const normalizedAccentPalettes = accentPalettes?.length ? accentPalettes : undefined;
+    const fallbackAccentId = defaultAccentId ?? normalizedAccentPalettes?.[0]?.id ?? '';
+    const [accentId, setAccentId] = useState(() => readPref(appId, ACCENT_KEY, fallbackAccentId));
+    const selectedAccent = normalizedAccentPalettes?.find(p => p.id === accentId) ?? normalizedAccentPalettes?.[0];
+    const activeAccentTokens = selectedAccent?.tokens ?? accentTokens;
+    const theme = useMemo(() => createAppTheme(mode, { extraCssVars, accentTokens: activeAccentTokens, fontScale, fontBaseRem }), [mode, extraCssVars, activeAccentTokens, fontScale, fontBaseRem]);
     const onToggleTheme = useCallback(() => {
         setMode(m => {
             const next = m === 'dark' ? 'light' : 'dark';
@@ -191,5 +228,9 @@ export function AppShell({ appId, appName, nav, extraCssVars, headerExtras, head
             return next;
         });
     }, [appId]);
-    return (_jsx(AppIdContext.Provider, { value: appId, children: _jsxs(ThemeProvider, { theme: theme, children: [_jsx(FontLoader, {}), _jsx(BaselineStyles, {}), _jsx(CssBaseline, {}), _jsx(AppShellContent, { appId: appId, appName: appName, nav: nav, headerExtras: headerExtras, headerLeft: headerLeft, sidebar: sidebar, mode: mode, onToggleTheme: onToggleTheme, children: children })] }) }));
+    const onAccentChange = useCallback((id) => {
+        setAccentId(id);
+        writePref(appId, ACCENT_KEY, id);
+    }, [appId]);
+    return (_jsx(AppIdContext.Provider, { value: appId, children: _jsxs(ThemeProvider, { theme: theme, children: [_jsx(FontLoader, {}), _jsx(BaselineStyles, {}), _jsx(CssBaseline, {}), _jsx(AppShellContent, { appId: appId, appName: appName, nav: nav, headerExtras: headerExtras, headerLeft: headerLeft, sidebar: sidebar, mode: mode, onToggleTheme: onToggleTheme, accentPalettes: normalizedAccentPalettes, accentId: selectedAccent?.id ?? accentId, onAccentChange: onAccentChange, children: children })] }) }));
 }

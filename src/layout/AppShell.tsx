@@ -2,14 +2,22 @@ import React, { useState, useCallback, useRef, useMemo, createContext, useContex
 import {
   Box, Typography, BottomNavigation, BottomNavigationAction,
   IconButton, Paper, Tooltip, useMediaQuery, useTheme as useMuiTheme,
-  ThemeProvider, CssBaseline,
+  ThemeProvider, CssBaseline, Menu, MenuItem, ListItemIcon,
 } from '@mui/material'
 import { NavLink, useLocation } from 'react-router-dom'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
-import { createAppTheme, SIDEBAR_W } from '../theme'
+import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined'
+import CheckIcon from '@mui/icons-material/Check'
+import {
+  createAppTheme,
+  resolveAccentTokens,
+  SIDEBAR_W,
+  type AccentPaletteOption,
+  type AccentTokenInput,
+} from '../theme'
 import { FontLoader, BaselineStyles } from '../Baseline'
 
 /* ── constants ────────────────────────────────────────────────────────────── */
@@ -17,6 +25,7 @@ import { FontLoader, BaselineStyles } from '../Baseline'
 const MIN_W = 160
 const MAX_W = 360
 const COLLAPSED_W = 52
+const ACCENT_KEY = 'accent'
 
 /* ── Preference context + helpers ─────────────────────────────────────────── */
 
@@ -73,6 +82,12 @@ export interface AppShellProps {
   nav: NavItem[]
   /** Project-specific CSS variables merged into the --ui-* namespace. */
   extraCssVars?: Record<string, string>
+  /** Project-specific accent tokens. Ignored when accentPalettes is provided. */
+  accentTokens?: AccentTokenInput
+  /** Optional accent choices shown in the header and persisted by appId. */
+  accentPalettes?: readonly AccentPaletteOption[]
+  /** Initial accent palette id when no stored preference exists. Defaults to the first palette. */
+  defaultAccentId?: string
   /** Extra content in the header right area (before the theme toggle). */
   headerExtras?: React.ReactNode
   /** Content shown in the header, immediately to the right of the app title. */
@@ -106,6 +121,87 @@ export function ThemeToggle({ mode, onToggleTheme }: {
           : <DarkModeIcon sx={{ fontSize: 18 }} />}
       </IconButton>
     </Tooltip>
+  )
+}
+
+function AccentPaletteMenu({
+  mode,
+  palettes,
+  selectedId,
+  onSelect,
+}: {
+  mode: 'dark' | 'light'
+  palettes: readonly AccentPaletteOption[]
+  selectedId: string
+  onSelect: (id: string) => void
+}) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+
+  if (palettes.length < 2) return null
+
+  return (
+    <>
+      <Tooltip title="Theme color">
+        <IconButton
+          size="small"
+          onClick={event => setAnchorEl(event.currentTarget)}
+          sx={{ color: 'var(--ui-text-secondary)', '&:hover': { color: 'primary.main' } }}
+        >
+          <PaletteOutlinedIcon sx={{ fontSize: 18 }} />
+        </IconButton>
+      </Tooltip>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        MenuListProps={{ dense: true }}
+        PaperProps={{
+          sx: {
+            mt: 0.75,
+            minWidth: 148,
+            background: 'var(--ui-surface)',
+            borderColor: 'var(--ui-border-strong)',
+          },
+        }}
+      >
+        {palettes.map(palette => {
+          const selectedPalette = palette.id === selectedId
+          const color = resolveAccentTokens(mode, palette.tokens).primary
+          return (
+            <MenuItem
+              key={palette.id}
+              selected={selectedPalette}
+              onClick={() => {
+                onSelect(palette.id)
+                setAnchorEl(null)
+              }}
+              sx={{ gap: 1, minHeight: 30 }}
+            >
+              <Box
+                sx={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  background: color,
+                  border: '1px solid var(--ui-border-strong)',
+                  boxShadow: selectedPalette ? '0 0 0 3px var(--ui-primary-border)' : 'none',
+                  flexShrink: 0,
+                }}
+              />
+              <Typography sx={{ fontFamily: '"Outfit", sans-serif', fontSize: 'var(--ui-font-size-control-small)', flex: 1 }}>
+                {palette.label}
+              </Typography>
+              <ListItemIcon sx={{ minWidth: 18, color: selectedPalette ? 'var(--ui-primary)' : 'transparent' }}>
+                <CheckIcon sx={{ fontSize: 16 }} />
+              </ListItemIcon>
+            </MenuItem>
+          )
+        })}
+      </Menu>
+    </>
   )
 }
 
@@ -160,7 +256,20 @@ function findActive(nav: NavItem[], pathname: string) {
 
 /* ── AppShellContent — rendered inside ThemeProvider ─────────────────────── */
 
-function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sidebar = true, mode, onToggleTheme, children }: {
+function AppShellContent({
+  appId,
+  appName,
+  nav,
+  headerExtras,
+  headerLeft,
+  sidebar = true,
+  mode,
+  onToggleTheme,
+  accentPalettes,
+  accentId,
+  onAccentChange,
+  children,
+}: {
   appId: string
   appName: string
   nav: NavItem[]
@@ -169,6 +278,9 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
   sidebar?: boolean
   mode: 'dark' | 'light'
   onToggleTheme: () => void
+  accentPalettes?: readonly AccentPaletteOption[]
+  accentId: string
+  onAccentChange: (id: string) => void
   children: React.ReactNode
 }) {
   const muiTheme = useMuiTheme()
@@ -237,6 +349,9 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
           {headerLeft}
           {headerExtras}
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            {accentPalettes && (
+              <AccentPaletteMenu mode={mode} palettes={accentPalettes} selectedId={accentId} onSelect={onAccentChange} />
+            )}
             <ThemeToggle mode={mode} onToggleTheme={onToggleTheme} />
           </Box>
         </Box>
@@ -305,6 +420,9 @@ function AppShellContent({ appId, appName, nav, headerExtras, headerLeft, sideba
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {headerExtras}
+          {accentPalettes && (
+            <AccentPaletteMenu mode={mode} palettes={accentPalettes} selectedId={accentId} onSelect={onAccentChange} />
+          )}
           <ThemeToggle mode={mode} onToggleTheme={onToggleTheme} />
         </Box>
       </Box>
@@ -374,6 +492,9 @@ export function AppShell({
   appName,
   nav,
   extraCssVars,
+  accentTokens,
+  accentPalettes,
+  defaultAccentId,
   headerExtras,
   headerLeft,
   defaultMode = 'dark',
@@ -385,10 +506,15 @@ export function AppShell({
   const [mode, setMode] = useState<'dark' | 'light'>(() =>
     readPref(appId, 'theme', defaultMode) as 'dark' | 'light'
   )
+  const normalizedAccentPalettes = accentPalettes?.length ? accentPalettes : undefined
+  const fallbackAccentId = defaultAccentId ?? normalizedAccentPalettes?.[0]?.id ?? ''
+  const [accentId, setAccentId] = useState(() => readPref(appId, ACCENT_KEY, fallbackAccentId))
+  const selectedAccent = normalizedAccentPalettes?.find(p => p.id === accentId) ?? normalizedAccentPalettes?.[0]
+  const activeAccentTokens = selectedAccent?.tokens ?? accentTokens
 
   const theme = useMemo(
-    () => createAppTheme(mode, { extraCssVars, fontScale, fontBaseRem }),
-    [mode, extraCssVars, fontScale, fontBaseRem],
+    () => createAppTheme(mode, { extraCssVars, accentTokens: activeAccentTokens, fontScale, fontBaseRem }),
+    [mode, extraCssVars, activeAccentTokens, fontScale, fontBaseRem],
   )
 
   const onToggleTheme = useCallback(() => {
@@ -397,6 +523,10 @@ export function AppShell({
       writePref(appId, 'theme', next)
       return next
     })
+  }, [appId])
+  const onAccentChange = useCallback((id: string) => {
+    setAccentId(id)
+    writePref(appId, ACCENT_KEY, id)
   }, [appId])
 
   return (
@@ -414,6 +544,9 @@ export function AppShell({
         sidebar={sidebar}
         mode={mode}
         onToggleTheme={onToggleTheme}
+        accentPalettes={normalizedAccentPalettes}
+        accentId={selectedAccent?.id ?? accentId}
+        onAccentChange={onAccentChange}
       >
         {children}
       </AppShellContent>

@@ -63,6 +63,40 @@ export function createAppTheme(mode: 'dark' | 'light') {
 }
 ```
 
+Accent colors can be customized at the theme layer. Pass static tokens for one
+brand color, or mode-aware tokens when light mode needs a deeper color than dark
+mode:
+
+```ts
+import { createAppTheme as base } from 'console-ui'
+
+export function createAppTheme(mode: 'dark' | 'light') {
+  return base(mode, {
+    accentTokens: {
+      dark: { primary: '#22d3ee', primaryLight: '#67e8f9', primaryDark: '#06b6d4' },
+      light: { primary: '#0891b2', primaryLight: '#06b6d4', primaryDark: '#0e7490' },
+    },
+  })
+}
+```
+
+For apps that should expose user-selectable theme colors, pass the shared
+palette set to `AppShell`:
+
+```tsx
+import { AppShell, accentPalettes } from 'console-ui'
+
+<AppShell
+  appId="my-app"
+  appName="My Dashboard"
+  nav={NAV}
+  accentPalettes={accentPalettes}
+  defaultAccentId="cyan"
+>
+  <Routes>...</Routes>
+</AppShell>
+```
+
 ## CSS Variables
 
 All theme values are on `:root` as `--ui-*`. Use these in `sx` props:
@@ -104,6 +138,8 @@ a custom theme.
 | `PaginationBar` | Shared numbered pagination with optional page-size select |
 | `modeTokens` | Raw color tokens by mode |
 | `accentTokens` | Brand/status color constants |
+| `accentPalettes` | Built-in mode-aware accent palette options |
+| `resolveAccentTokens(mode, input?)` | Resolves default, static, or mode-aware accent tokens |
 | `SIDEBAR_W` | Default sidebar width (216px) |
 
 ## Releasing

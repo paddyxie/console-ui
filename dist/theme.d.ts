@@ -53,18 +53,131 @@ export declare const modeTokens: {
     };
 };
 export type ModeTokens = (typeof modeTokens)[keyof typeof modeTokens];
-export declare const accentTokens: {
-    readonly primary: "#818cf8";
-    readonly primaryLight: "#a5b4fc";
-    readonly primaryDark: "#6366f1";
-    readonly primaryAlt: "#60a5fa";
-    readonly success: "#10b981";
-    readonly warning: "#f59e0b";
-    readonly warningAlt: "#eab308";
-    readonly error: "#ef4444";
-    readonly errorDark: "#dc2626";
-    readonly white: "#fff";
-};
+export interface AccentTokens {
+    primary: string;
+    primaryLight: string;
+    primaryDark: string;
+    primaryAlt: string;
+    success: string;
+    warning: string;
+    warningAlt: string;
+    error: string;
+    errorDark: string;
+    white: string;
+}
+export type AccentTokenOverrides = Partial<AccentTokens>;
+export type ModeAccentTokenOverrides = Partial<Record<PaletteMode, AccentTokenOverrides>>;
+export type AccentTokenInput = AccentTokenOverrides | ModeAccentTokenOverrides;
+export interface AccentPaletteOption {
+    id: string;
+    label: string;
+    tokens: AccentTokenInput;
+}
+export declare const accentTokens: AccentTokens;
+export declare const accentPalettes: readonly [{
+    readonly id: "cyan";
+    readonly label: "Cyan";
+    readonly tokens: {
+        readonly dark: {
+            readonly primary: "#22d3ee";
+            readonly primaryLight: "#67e8f9";
+            readonly primaryDark: "#06b6d4";
+            readonly primaryAlt: "#38bdf8";
+        };
+        readonly light: {
+            readonly primary: "#0891b2";
+            readonly primaryLight: "#06b6d4";
+            readonly primaryDark: "#0e7490";
+            readonly primaryAlt: "#0284c7";
+        };
+    };
+}, {
+    readonly id: "violet";
+    readonly label: "Violet";
+    readonly tokens: {
+        readonly dark: {
+            readonly primary: "#8b5cf6";
+            readonly primaryLight: "#a78bfa";
+            readonly primaryDark: "#7c3aed";
+            readonly primaryAlt: "#818cf8";
+        };
+        readonly light: {
+            readonly primary: "#7c3aed";
+            readonly primaryLight: "#8b5cf6";
+            readonly primaryDark: "#6d28d9";
+            readonly primaryAlt: "#4f46e5";
+        };
+    };
+}, {
+    readonly id: "emerald";
+    readonly label: "Emerald";
+    readonly tokens: {
+        readonly dark: {
+            readonly primary: "#10b981";
+            readonly primaryLight: "#34d399";
+            readonly primaryDark: "#059669";
+            readonly primaryAlt: "#14b8a6";
+        };
+        readonly light: {
+            readonly primary: "#059669";
+            readonly primaryLight: "#10b981";
+            readonly primaryDark: "#047857";
+            readonly primaryAlt: "#0d9488";
+        };
+    };
+}, {
+    readonly id: "amber";
+    readonly label: "Amber";
+    readonly tokens: {
+        readonly dark: {
+            readonly primary: "#f59e0b";
+            readonly primaryLight: "#fbbf24";
+            readonly primaryDark: "#d97706";
+            readonly primaryAlt: "#eab308";
+        };
+        readonly light: {
+            readonly primary: "#d97706";
+            readonly primaryLight: "#f59e0b";
+            readonly primaryDark: "#b45309";
+            readonly primaryAlt: "#ca8a04";
+        };
+    };
+}, {
+    readonly id: "rose";
+    readonly label: "Rose";
+    readonly tokens: {
+        readonly dark: {
+            readonly primary: "#f43f5e";
+            readonly primaryLight: "#fb7185";
+            readonly primaryDark: "#e11d48";
+            readonly primaryAlt: "#ec4899";
+        };
+        readonly light: {
+            readonly primary: "#e11d48";
+            readonly primaryLight: "#f43f5e";
+            readonly primaryDark: "#be123c";
+            readonly primaryAlt: "#db2777";
+        };
+    };
+}, {
+    readonly id: "slate";
+    readonly label: "Slate";
+    readonly tokens: {
+        readonly dark: {
+            readonly primary: "#94a3b8";
+            readonly primaryLight: "#cbd5e1";
+            readonly primaryDark: "#64748b";
+            readonly primaryAlt: "#38bdf8";
+        };
+        readonly light: {
+            readonly primary: "#475569";
+            readonly primaryLight: "#64748b";
+            readonly primaryDark: "#334155";
+            readonly primaryAlt: "#0f766e";
+        };
+    };
+}];
+export declare function resolveAccentTokens(mode: PaletteMode, input?: AccentTokenInput): AccentTokens;
 export interface TypographyScale {
     appTitle: string;
     pageTitle: string;
@@ -91,6 +204,7 @@ export interface TypographyScale {
 export declare function createTypographyScale(fontScale?: number, fontBaseRem?: number): TypographyScale;
 export interface ThemeOptions {
     extraCssVars?: Record<string, string>;
+    accentTokens?: AccentTokenInput;
     fontScale?: number;
     fontBaseRem?: number;
 }

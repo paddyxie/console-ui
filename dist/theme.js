@@ -53,7 +53,6 @@ export const modeTokens = {
         selectedTextSoft: '#4f46e5',
     },
 };
-/* ── accent tokens ────────────────────────────────────────────────────────── */
 export const accentTokens = {
     primary: '#818cf8',
     primaryLight: '#a5b4fc',
@@ -66,6 +65,77 @@ export const accentTokens = {
     errorDark: '#dc2626',
     white: '#fff',
 };
+const lightAccentTokens = {
+    primary: '#4f46e5',
+    primaryLight: '#6366f1',
+    primaryDark: '#4338ca',
+    primaryAlt: '#2563eb',
+};
+export const accentPalettes = [
+    {
+        id: 'cyan',
+        label: 'Cyan',
+        tokens: {
+            dark: { primary: '#22d3ee', primaryLight: '#67e8f9', primaryDark: '#06b6d4', primaryAlt: '#38bdf8' },
+            light: { primary: '#0891b2', primaryLight: '#06b6d4', primaryDark: '#0e7490', primaryAlt: '#0284c7' },
+        },
+    },
+    {
+        id: 'violet',
+        label: 'Violet',
+        tokens: {
+            dark: { primary: '#8b5cf6', primaryLight: '#a78bfa', primaryDark: '#7c3aed', primaryAlt: '#818cf8' },
+            light: { primary: '#7c3aed', primaryLight: '#8b5cf6', primaryDark: '#6d28d9', primaryAlt: '#4f46e5' },
+        },
+    },
+    {
+        id: 'emerald',
+        label: 'Emerald',
+        tokens: {
+            dark: { primary: '#10b981', primaryLight: '#34d399', primaryDark: '#059669', primaryAlt: '#14b8a6' },
+            light: { primary: '#059669', primaryLight: '#10b981', primaryDark: '#047857', primaryAlt: '#0d9488' },
+        },
+    },
+    {
+        id: 'amber',
+        label: 'Amber',
+        tokens: {
+            dark: { primary: '#f59e0b', primaryLight: '#fbbf24', primaryDark: '#d97706', primaryAlt: '#eab308' },
+            light: { primary: '#d97706', primaryLight: '#f59e0b', primaryDark: '#b45309', primaryAlt: '#ca8a04' },
+        },
+    },
+    {
+        id: 'rose',
+        label: 'Rose',
+        tokens: {
+            dark: { primary: '#f43f5e', primaryLight: '#fb7185', primaryDark: '#e11d48', primaryAlt: '#ec4899' },
+            light: { primary: '#e11d48', primaryLight: '#f43f5e', primaryDark: '#be123c', primaryAlt: '#db2777' },
+        },
+    },
+    {
+        id: 'slate',
+        label: 'Slate',
+        tokens: {
+            dark: { primary: '#94a3b8', primaryLight: '#cbd5e1', primaryDark: '#64748b', primaryAlt: '#38bdf8' },
+            light: { primary: '#475569', primaryLight: '#64748b', primaryDark: '#334155', primaryAlt: '#0f766e' },
+        },
+    },
+];
+function isModeAccentTokenOverrides(input) {
+    return 'dark' in input || 'light' in input;
+}
+export function resolveAccentTokens(mode, input) {
+    const base = {
+        ...accentTokens,
+        ...(mode === 'light' ? lightAccentTokens : {}),
+    };
+    const overrides = input
+        ? isModeAccentTokenOverrides(input)
+            ? input[mode]
+            : input
+        : undefined;
+    return { ...base, ...overrides };
+}
 const DEFAULT_FONT_BASE_REM = 0.8125;
 function rem(value) {
     return `${Number(value.toFixed(4))}rem`;
@@ -177,7 +247,7 @@ function cssVars(t, a, type, extra) {
 }
 export function createAppTheme(mode, opts) {
     const t = modeTokens[mode];
-    const a = accentTokens;
+    const a = resolveAccentTokens(mode, opts?.accentTokens);
     const type = createTypographyScale(opts?.fontScale, opts?.fontBaseRem);
     const vars = cssVars(t, a, type, opts?.extraCssVars);
     return createTheme({
