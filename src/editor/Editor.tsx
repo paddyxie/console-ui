@@ -18,6 +18,7 @@ import { ThemeProvider, useTheme } from './ThemeContext'
 import type { Theme } from './ThemeContext'
 import { WidthProvider, useWidth } from './WidthContext'
 import { Toolbar } from './toolbar/Toolbar'
+import { jsonToMarkdown } from './markdownSerializer'
 import './theme.css'
 import './editor.css'
 
@@ -48,6 +49,7 @@ const defaultContent = `<h1>Welcome to the Editor</h1>
 export interface EditorSaveData {
   json: JSONContent
   html: string
+  markdown: string
 }
 
 export interface EditorHandle {
@@ -111,7 +113,8 @@ const EditorUI = forwardRef<EditorHandle, { onSave?: (data: EditorSaveData) => v
 
     const getEditorData = useCallback((): EditorSaveData | null => {
       if (!editor) return null
-      return { json: editor.getJSON(), html: editor.getHTML() }
+      const json = editor.getJSON()
+      return { json, html: editor.getHTML(), markdown: jsonToMarkdown(json) }
     }, [editor])
 
     const handleSave = useCallback(() => {

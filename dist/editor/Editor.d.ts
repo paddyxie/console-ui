@@ -5,6 +5,7 @@ import './editor.css';
 export interface EditorSaveData {
     json: JSONContent;
     html: string;
+    markdown: string;
 }
 export interface EditorHandle {
     save: () => void;

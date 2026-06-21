@@ -15,6 +15,7 @@ import { EditorContext, useEditorContext } from './EditorContext';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { WidthProvider, useWidth } from './WidthContext';
 import { Toolbar } from './toolbar/Toolbar';
+import { jsonToMarkdown } from './markdownSerializer';
 import './theme.css';
 import './editor.css';
 const extensions = [
@@ -76,7 +77,8 @@ const EditorUI = forwardRef(function EditorUI({ onSave, readOnly }, ref) {
     const getEditorData = useCallback(() => {
         if (!editor)
             return null;
-        return { json: editor.getJSON(), html: editor.getHTML() };
+        const json = editor.getJSON();
+        return { json, html: editor.getHTML(), markdown: jsonToMarkdown(json) };
     }, [editor]);
     const handleSave = useCallback(() => {
         if (!onSave)
