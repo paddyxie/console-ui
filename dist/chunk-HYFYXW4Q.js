@@ -1,0 +1,60 @@
+import * as __cu_react from "react";
+import * as __cu_react_dom from "react-dom";
+const require = (id) => {
+  if (id === "react") return __cu_react;
+  if (id === "react-dom") return __cu_react_dom;
+  throw new Error("console-ui: unexpected require(\"" + id + "\")");
+};
+import {
+  AbstractMermaidTokenBuilder,
+  AbstractMermaidValueConverter,
+  EmptyFileSystem,
+  MermaidGeneratedSharedModule,
+  PieGrammarGeneratedModule,
+  __name,
+  createDefaultCoreModule,
+  createDefaultSharedCoreModule,
+  inject
+} from "./chunk-PL2HDBUT.js";
+
+// node_modules/@mermaid-js/parser/dist/chunks/mermaid-parser.core/chunk-MZUSXYTE.mjs
+var _a;
+var PieTokenBuilder = (_a = class extends AbstractMermaidTokenBuilder {
+  constructor() {
+    super(["pie", "showData"]);
+  }
+}, __name(_a, "PieTokenBuilder"), _a);
+var _a2;
+var PieValueConverter = (_a2 = class extends AbstractMermaidValueConverter {
+  runCustomConverter(rule, input, _cstNode) {
+    if (rule.name !== "PIE_SECTION_LABEL") {
+      return void 0;
+    }
+    return input.replace(/"/g, "").trim();
+  }
+}, __name(_a2, "PieValueConverter"), _a2);
+var PieModule = {
+  parser: {
+    TokenBuilder: /* @__PURE__ */ __name(() => new PieTokenBuilder(), "TokenBuilder"),
+    ValueConverter: /* @__PURE__ */ __name(() => new PieValueConverter(), "ValueConverter")
+  }
+};
+function createPieServices(context = EmptyFileSystem) {
+  const shared = inject(
+    createDefaultSharedCoreModule(context),
+    MermaidGeneratedSharedModule
+  );
+  const Pie = inject(
+    createDefaultCoreModule({ shared }),
+    PieGrammarGeneratedModule,
+    PieModule
+  );
+  shared.ServiceRegistry.register(Pie);
+  return { shared, Pie };
+}
+__name(createPieServices, "createPieServices");
+
+export {
+  PieModule,
+  createPieServices
+};

@@ -168,14 +168,36 @@ If no: keep it in the consuming project.
 bun add console-ui@file:../../console-ui
 
 # Build
-bun run build          # tsc → dist/
+bun run build          # tsup → bundled dist/ (index.js + index.css + index.d.ts)
 
 # Watch mode
-bun run dev            # tsc --watch
+bun run dev            # tsup --watch
 ```
 
-Consuming projects reference `src/index.ts` directly (via `exports."."."import"`),
-so `dist/` is only needed for TypeScript types during development and for git releases.
+The build is a **bundle** (tsup/esbuild), not a plain `tsc` transpile, with **three entry
+points** so consumers only pay for what they import:
+
+| Import path          | Contains                                  | Heavy deps bundled            |
+| -------------------- | ----------------------------------------- | ----------------------------- |
+| `console-ui`         | theme, AppShell, PageHeader, …            | none (~40 KB)                 |
+| `console-ui/editor`  | rich-text `Editor`                        | tiptap, prosemirror, mermaid, lowlight, highlight.js |
+| `console-ui/md`      | `Md` markdown renderer                    | react-markdown, remark-gfm    |
+
+Consuming projects import the compiled `dist/` (via `exports`), never `src/`. Each bundle
+inlines its own dependencies and leaves only the peers external (react, react-dom, @mui/*,
+@emotion/*, react-router-dom). This is deliberate on two counts:
+- **Zero `optimizeDeps` config** for consumers — nothing to pre-bundle or interop-fix.
+- **Single instance** of React / MUI / emotion via the externalized peers (bundling them
+  would duplicate instances and break hooks / theming).
+- **No dead weight**: a shell-only app never pulls the editor or markdown trees.
+
+CSS: only the editor has stylesheets; they are concatenated into `dist/editor.css`, exposed
+as `console-ui/editor.css`. Import it once where you use the `Editor` (the core and `md`
+entries have no CSS).
+
+When adding a dependency to the library, put it in `devDependencies` (it gets bundled), and
+add it to the `external` list in `tsup.config.ts` only if it is a peer the consumer must own.
+If the dep is heavy and only used by one feature, consider a dedicated entry point for it.
 
 ---
 
@@ -207,9 +229,12 @@ Projects must provide:
 - `react-dom` ^18 or ^19
 - `@mui/material` ^5 or ^6
 - `@mui/icons-material` ^5 or ^6
+- `@emotion/react` ^11
+- `@emotion/styled` ^11
 - `react-router-dom` ^6 or ^7
 
-Do not bundle these. They are `peerDependencies`.
+Do not bundle these. They are `peerDependencies` and stay external in `tsup.config.ts`,
+so the library uses the consumer's single copy. Everything else is bundled into `dist`.
 
 ---
 

@@ -27,9 +27,7 @@ export { PageHeader } from './components/PageHeader'
 export { PaginationBar } from './components/PaginationBar'
 export type { PaginationBarProps } from './components/PaginationBar'
 export { StatusDot } from './components/StatusDot'
-export { default as Md } from './components/Md'
 
-export { Editor } from './editor/Editor'
-export type { EditorHandle, EditorSaveData, EditorProps } from './editor/Editor'
-export { ThemeProvider as EditorThemeProvider, useTheme as useEditorTheme } from './editor/ThemeContext'
-export type { Theme as EditorTheme } from './editor/ThemeContext'
+// Md (react-markdown) lives at 'console-ui/md' and the rich-text Editor (tiptap, mermaid,
+// lowlight) at 'console-ui/editor'. They are separate entry points so apps that only use
+// the shell/theme don't bundle those heavy trees. See tsup.config.ts / package.json exports.

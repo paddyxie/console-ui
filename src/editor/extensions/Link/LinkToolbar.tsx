@@ -1,6 +1,7 @@
 "use client"
 import { useState } from 'react'
-import { MdInsertLink, MdLinkOff } from 'react-icons/md'
+import InsertLinkIcon from '@mui/icons-material/InsertLink'
+import LinkOffIcon from '@mui/icons-material/LinkOff'
 import { useEditorContext } from '../../EditorContext'
 
 export function LinkToolbar() {
@@ -35,11 +36,11 @@ export function LinkToolbar() {
         }}
         className={`toolbar-btn${isActive ? ' active' : ''}`}
       >
-        <MdInsertLink />
+        <InsertLinkIcon />
       </button>
       {isActive && (
         <button title="Remove Link" onClick={removeLink} onMouseDown={e => e.preventDefault()} className="toolbar-btn">
-          <MdLinkOff />
+          <LinkOffIcon />
         </button>
       )}
       {open && (

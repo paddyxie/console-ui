@@ -1,6 +1,7 @@
 'use client'
 
-import { MdUndo, MdRedo } from 'react-icons/md'
+import UndoIcon from '@mui/icons-material/Undo'
+import RedoIcon from '@mui/icons-material/Redo'
 import { useEditorContext } from '../EditorContext'
 
 export function UndoRedoToolbar() {
@@ -16,7 +17,7 @@ export function UndoRedoToolbar() {
         onClick={() => editor.chain().focus().undo().run()}
         disabled={!editor.can().undo()}
       >
-        <MdUndo />
+        <UndoIcon />
       </button>
       <button
         onMouseDown={e => e.preventDefault()}
@@ -25,7 +26,7 @@ export function UndoRedoToolbar() {
         onClick={() => editor.chain().focus().redo().run()}
         disabled={!editor.can().redo()}
       >
-        <MdRedo />
+        <RedoIcon />
       </button>
     </>
   )

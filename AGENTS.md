@@ -34,7 +34,8 @@ src/
   layout/
     AppShell.tsx        Header + Sidebar + Content shell
   components/           Shared UI components (growing)
-dist/                   TypeScript build output (committed for git releases)
+dist/                   tsup bundle output — index.js + index.css + index.d.ts
+                        (self-contained: deps bundled, peers external; committed for releases)
 ```
 
 **Rule:** Nothing is part of the library's public API unless it's exported from `src/index.ts`.
@@ -117,10 +118,26 @@ When migrating `ai-agent-workspace` or `awc-bun`:
 3. **Replace App layout**: remove hand-rolled header/sidebar code, use `AppShell`
 4. **Replace FontLoader**: remove any manual Google Fonts `<link>` tags
 5. **Remove duplicate CSS**: anything that duplicates `BaselineStyles` (scrollbars, box-sizing)
-6. **Remove `optimizeDeps.include: ['console-ui']`** from `vite.config.ts` if present —
-   console-ui ships compiled JS in `dist/`, no Vite pre-bundling needed
-7. **Add no-flash script** to `index.html` (see below)
-8. **Verify**: app renders, nav works, theme toggle works, mobile responsive
+6. **Use the right entry point**:
+   - Shell / theme / components → `import { AppShell, … } from 'console-ui'` (lightweight)
+   - Rich-text editor → `import { Editor } from 'console-ui/editor'` **and**
+     `import 'console-ui/editor.css'` (co-locate both where the Editor is used — the editor
+     CSS is shipped as a separate file, not auto-injected, so without it the editor is unstyled)
+   - Markdown renderer → `import { Md } from 'console-ui/md'`
+
+   These are separate bundles on purpose: a project that only uses the shell never pulls the
+   editor's tiptap/mermaid tree or react-markdown.
+7. **No `optimizeDeps` config for console-ui** — do not add any entry to `include` OR `exclude`.
+   Each entry point ships a self-contained bundle: its own dependencies (tiptap, prosemirror,
+   react-markdown, mermaid, lowlight, highlight.js, …) are bundled into `dist`, and only the
+   peers (react, react-dom, @mui/*, @emotion/*, react-router-dom) are left external so they
+   resolve to the app's single deduped copies. Nothing for the consumer to pre-bundle or
+   interop-fix. (Delete any leftover `include`/`exclude` entries for console-ui or its
+   transitive deps from an older setup.)
+8. **TS `moduleResolution`** must be `"Bundler"` (or node16/nodenext) so the `console-ui/editor`
+   and `console-ui/md` subpath types resolve via the package `exports` map.
+9. **Add no-flash script** to `index.html` (see below)
+10. **Verify**: app renders, nav works, theme toggle works, editor + markdown routes work, mobile responsive
 
 ### No-flash script (required in index.html `<head>`)
 

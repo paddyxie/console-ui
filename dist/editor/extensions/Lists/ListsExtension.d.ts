@@ -1,1 +1,0 @@
-export declare const listsExtensions: (import("@tiptap/core").Node<import("@tiptap/extension-list").BulletListOptions, any> | import("@tiptap/core").Node<import("@tiptap/extension-list").ListItemOptions, any> | import("@tiptap/core").Node<import("@tiptap/extension-list").TaskListOptions, any> | import("@tiptap/core").Node<import("@tiptap/extension-list").TaskItemOptions, any>)[];

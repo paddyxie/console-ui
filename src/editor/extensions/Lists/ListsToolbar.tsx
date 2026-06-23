@@ -1,8 +1,9 @@
 "use client"
-import {
-  MdFormatListBulleted, MdFormatListNumbered, MdChecklist,
-  MdFormatIndentIncrease, MdFormatIndentDecrease,
-} from 'react-icons/md'
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered'
+import ChecklistIcon from '@mui/icons-material/Checklist'
+import FormatIndentIncreaseIcon from '@mui/icons-material/FormatIndentIncrease'
+import FormatIndentDecreaseIcon from '@mui/icons-material/FormatIndentDecrease'
 import { useEditorContext } from '../../EditorContext'
 
 export function ListsToolbar() {
@@ -17,7 +18,7 @@ export function ListsToolbar() {
         onMouseDown={e => e.preventDefault()}
         className={`toolbar-btn${editor.isActive('bulletList') ? ' active' : ''}`}
       >
-        <MdFormatListBulleted />
+        <FormatListBulletedIcon />
       </button>
       <button
         title="Numbered List"
@@ -25,7 +26,7 @@ export function ListsToolbar() {
         onMouseDown={e => e.preventDefault()}
         className={`toolbar-btn${editor.isActive('orderedList') ? ' active' : ''}`}
       >
-        <MdFormatListNumbered />
+        <FormatListNumberedIcon />
       </button>
       <button
         title="Task List"
@@ -33,7 +34,7 @@ export function ListsToolbar() {
         onMouseDown={e => e.preventDefault()}
         className={`toolbar-btn${editor.isActive('taskList') ? ' active' : ''}`}
       >
-        <MdChecklist />
+        <ChecklistIcon />
       </button>
       <button
         title="Indent (Tab)"
@@ -41,7 +42,7 @@ export function ListsToolbar() {
         onMouseDown={e => e.preventDefault()}
         className="toolbar-btn"
       >
-        <MdFormatIndentIncrease />
+        <FormatIndentIncreaseIcon />
       </button>
       <button
         title="Outdent (Shift+Tab)"
@@ -49,7 +50,7 @@ export function ListsToolbar() {
         onMouseDown={e => e.preventDefault()}
         className="toolbar-btn"
       >
-        <MdFormatIndentDecrease />
+        <FormatIndentDecreaseIcon />
       </button>
     </div>
   )

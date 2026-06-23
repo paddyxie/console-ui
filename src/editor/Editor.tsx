@@ -27,6 +27,8 @@ const extensions = [
     bold: false,
     italic: false,
     strike: false,
+    underline: false,
+    link: false,
     bulletList: false,
     orderedList: false,
     listItem: false,

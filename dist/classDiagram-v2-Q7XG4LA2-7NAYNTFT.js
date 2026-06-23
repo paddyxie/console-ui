@@ -1,0 +1,51 @@
+import * as __cu_react from "react";
+import * as __cu_react_dom from "react-dom";
+const require = (id) => {
+  if (id === "react") return __cu_react;
+  if (id === "react-dom") return __cu_react_dom;
+  throw new Error("console-ui: unexpected require(\"" + id + "\")");
+};
+import {
+  ClassDB,
+  classDiagram_default,
+  classRenderer_v3_unified_default,
+  styles_default
+} from "./chunk-3XAUBUFZ.js";
+import "./chunk-MOKWR5MJ.js";
+import "./chunk-KBYJQNH5.js";
+import "./chunk-4PSHRX7Z.js";
+import "./chunk-PEEWTBN3.js";
+import "./chunk-XWYF6VMI.js";
+import "./chunk-4WS7IN5C.js";
+import "./chunk-Y5UVUPWS.js";
+import "./chunk-T5N6VODM.js";
+import "./chunk-NDNONF5E.js";
+import "./chunk-BLQ7MF5Q.js";
+import "./chunk-JYOCFTOZ.js";
+import "./chunk-QB2RWYDN.js";
+import "./chunk-XN5WSCV2.js";
+import "./chunk-FSV5KATF.js";
+import "./chunk-6AZXI6XH.js";
+import {
+  __name
+} from "./chunk-MZJUJ7JO.js";
+import "./chunk-CKEHATKM.js";
+
+// node_modules/mermaid/dist/chunks/mermaid.core/classDiagram-v2-Q7XG4LA2.mjs
+var diagram = {
+  parser: classDiagram_default,
+  get db() {
+    return new ClassDB();
+  },
+  renderer: classRenderer_v3_unified_default,
+  styles: styles_default,
+  init: /* @__PURE__ */ __name((cnf) => {
+    if (!cnf.class) {
+      cnf.class = {};
+    }
+    cnf.class.arrowMarkerAbsolute = cnf.arrowMarkerAbsolute;
+  }, "init")
+};
+export {
+  diagram
+};

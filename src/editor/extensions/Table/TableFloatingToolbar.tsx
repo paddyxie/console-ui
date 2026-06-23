@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react'
-import { MdGridOn } from 'react-icons/md'
+import GridOnIcon from '@mui/icons-material/GridOn'
 import type { Editor } from '@tiptap/react'
 import { useEditorContext } from '../../EditorContext'
 import './tablefloating.css'
@@ -137,7 +137,7 @@ export function TableInsertButton() {
   return (
     <div className="toolbar-group" style={{ position: 'relative' }}>
       <button title="Insert Table" onMouseDown={e => e.preventDefault()} onClick={() => setOpen(o => !o)} className="toolbar-btn" aria-label="Insert table">
-        <MdGridOn />
+        <GridOnIcon />
       </button>
       {open && (
         <div className="link-popover" style={{ minWidth: 210, flexDirection: 'column', gap: 10 }}>

@@ -1,5 +1,5 @@
 export { Editor } from './Editor'
 export type { EditorHandle, EditorSaveData, EditorProps } from './Editor'
-export { ThemeProvider, useTheme } from './ThemeContext'
-export type { Theme } from './ThemeContext'
+export { ThemeProvider as EditorThemeProvider, useTheme as useEditorTheme } from './ThemeContext'
+export type { Theme as EditorTheme } from './ThemeContext'
 export { jsonToMarkdown } from './markdownSerializer'

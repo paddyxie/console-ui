@@ -1,5 +1,5 @@
 "use client"
-import { MdCode } from 'react-icons/md'
+import CodeIcon from '@mui/icons-material/Code'
 import { useEditorContext } from '../../EditorContext'
 
 export function CodeBlockToolbar() {
@@ -15,7 +15,7 @@ export function CodeBlockToolbar() {
         className={`toolbar-btn${editor.isActive('codeBlock') ? ' active' : ''}`}
         aria-label="Code block"
       >
-        <MdCode />
+        <CodeIcon />
       </button>
     </div>
   )

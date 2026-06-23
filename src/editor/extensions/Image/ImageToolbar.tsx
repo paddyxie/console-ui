@@ -1,6 +1,6 @@
 "use client"
 import { useRef, useState } from 'react'
-import { MdImage } from 'react-icons/md'
+import ImageIcon from '@mui/icons-material/Image'
 import { useEditorContext } from '../../EditorContext'
 
 export function ImageToolbar() {
@@ -44,7 +44,7 @@ export function ImageToolbar() {
         onClick={() => setOpen(o => !o)}
         className="toolbar-btn"
       >
-        <MdImage />
+        <ImageIcon />
       </button>
       {open && (
         <div className="link-popover" style={{ minWidth: 320 }}>

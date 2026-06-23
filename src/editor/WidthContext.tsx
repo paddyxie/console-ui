@@ -25,13 +25,13 @@ interface WidthContextValue {
 }
 
 const WidthContext = createContext<WidthContextValue>({
-  preset: '100%',
+  preset: 'fit',
   setPreset: () => {},
-  widthStyle: PRESET_STYLE['100%'],
+  widthStyle: PRESET_STYLE.fit,
 })
 
 export function WidthProvider({ children }: { children: ReactNode }) {
-  const [preset, setPreset] = useState<WidthPreset>('100%')
+  const [preset, setPreset] = useState<WidthPreset>('fit')
   return (
     <WidthContext.Provider value={{ preset, setPreset, widthStyle: PRESET_STYLE[preset] }}>
       {children}
